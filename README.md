@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://git.io/typing-svg">
-    <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=24&color=00BFFF&center=true&vCenter=true&width=600&lines=Selamat+datang+di+Echo+of+Thought;Cerita+yang+beradaptasi+dengan+tatapan+Anda.;Bukan+apa+yang+Anda+klik.;Tetapi+ke+mana+Anda+melihat." alt="Animated Typing Header" />
+    <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=24&color=00BFFF&center=true&vCenter=true&width=600&lines=Selamat+datang+di+Echo+of+Thought;Cerita+yang+beradaptasi+dengan+tatapan.;Bukan+apa+yang+Anda+klik.;Tetapi+ke+mana+Anda+melihat." alt="Animated Typing Header" />
   </a>
 </p>
 
