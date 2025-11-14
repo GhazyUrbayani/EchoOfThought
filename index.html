@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Voice Story Prototype</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #111;
+      color: #eee;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      padding: 12px 16px;
+      background: #181818;
+      border-bottom: 1px solid #333;
+      font-weight: 600;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .title {
+      font-size: 1.05rem;
+      letter-spacing: 0.02em;
+    }
+
+    .api-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-weight: 400;
+      font-size: 0.85rem;
+      color: #bbb;
+    }
+
+    .api-controls label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #aaa;
+    }
+
+    .api-controls .key-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .api-controls input {
+      background: #111;
+      color: #fff;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 6px 10px;
+      min-width: 220px;
+    }
+
+    .api-controls button {
+      background: #2d52a2;
+      border: none;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .api-controls button:hover {
+      background: #3c64c5;
+    }
+
+    .api-controls #clear-key {
+      background: #444;
+    }
+
+    .api-controls #clear-key:hover {
+      background: #555;
+    }
+
+    #log {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .msg {
+      margin-bottom: 10px;
+      max-width: 80%;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+
+    .msg.system {
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+    .msg.player {
+      background: #2b4c7e;
+      padding: 8px 10px;
+      border-radius: 12px 12px 0 12px;
+      margin-left: auto;
+    }
+
+    .msg.game {
+      background: #222;
+      padding: 8px 10px;
+      border-radius: 12px 12px 12px 0;
+      margin-right: auto;
+    }
+
+    footer {
+      padding: 12px 16px;
+      background: #181818;
+      border-top: 1px solid #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #mic-btn {
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.95rem;
+      cursor: pointer;
+      color: #fff;
+      background: #3a7bd5;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #mic-btn.listening {
+      background: #d53a3a;
+    }
+
+    #status {
+      font-size: 0.85rem;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">Voice Story - Prototype</div>
+    <div class="api-controls">
+      <label for="api-key">Groq API Key</label>
+      <div class="key-row">
+        <input type="password" id="api-key" placeholder="gsk_..." autocomplete="off" />
+        <button id="save-key" type="button">Save</button>
+        <button id="clear-key" type="button">Clear</button>
+      </div>
+      <small>Generated at console.groq.com (stored locally only).</small>
+    </div>
+  </header>
+
+  <div id="log"></div>
+
+  <footer>
+    <button id="mic-btn">Mic - Tap to Talk</button>
+    <div id="status">Idle</div>
+  </footer>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const MODEL = "llama-3.3-70b-versatile";
+      const RESPONSE_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
+      const STORAGE_KEY = "echo-of-thought-groq-key";
+      const MAX_HISTORY_MESSAGES = 12;
+      const SYSTEM_PROMPT = [
+        "You are Echo, an AI narrator for a choice-driven teen drama set in a Japanese high school.",
+        "Write in immersive second-person prose, keeping each turn under roughly 120 words.",
+        "Tie every beat to previous events. If the player was kind, show that trust grows. If they were cold, let tension linger.",
+        "End every turn with a short question or instruction that invites the player to act.",
+        "Respond ONLY with minified JSON containing keys: response (string), prompt (string), scene (string), relationship_delta (number), flags (object with hasIntroducedSelf boolean).",
+        "Never add commentary or any text outside that JSON."
+      ].join(" ");
+
+      const logEl = document.getElementById("log");
+      const micBtn = document.getElementById("mic-btn");
+      const statusEl = document.getElementById("status");
+      const apiKeyInput = document.getElementById("api-key");
+      const saveKeyBtn = document.getElementById("save-key");
+      const clearKeyBtn = document.getElementById("clear-key");
+
+      const conversationHistory = [];
+      const gameState = {
+        scene: "intro",
+        relationship: { yuta: 0 },
+        hasIntroducedSelf: false
+      };
+
+      let apiKey = window.localStorage.getItem(STORAGE_KEY) || "";
+      if (apiKey) {
+        apiKeyInput.value = apiKey;
+      }
+
+      let recognition = null;
+      let listening = false;
+      let isProcessingTurn = false;
+
+      function addMessage(text, role = "game") {
+        const div = document.createElement("div");
+        div.className = "msg " + role;
+        div.textContent = text;
+        logEl.appendChild(div);
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function setStatus(text) {
+        statusEl.textContent = text;
+      }
+
+      function remember(role, content) {
+        conversationHistory.push({ role, content });
+        if (conversationHistory.length > MAX_HISTORY_MESSAGES) {
+          conversationHistory.splice(0, conversationHistory.length - MAX_HISTORY_MESSAGES);
+        }
+      }
+
+      function createStateSnapshot() {
+        return [
+          `Scene: ${gameState.scene}`,
+          `Relationship (Yuta): ${gameState.relationship.yuta}`,
+          `Has introduced self: ${gameState.hasIntroducedSelf}`
+        ].join("\n");
+      }
+
+      function composeUserMessage(playerText) {
+        const summary = createStateSnapshot();
+        return [
+          `Player line: ${playerText}`,
+          "",
+          "State summary:",
+          summary,
+          "",
+          "Respond strictly with JSON as described in the system prompt. Never add commentary outside JSON."
+        ].join("\n");
+      }
+
+      function buildMessages(playerText) {
+        const trimmedHistory = conversationHistory.slice(-MAX_HISTORY_MESSAGES);
+        return [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...trimmedHistory,
+          { role: "user", content: composeUserMessage(playerText) }
+        ];
+      }
+
+      function speak(text) {
+        if (!("speechSynthesis" in window)) {
+          return;
+        }
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "en-US";
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      }
+
+      function applyStateUpdates(payload) {
+        if (payload.scene) {
+          gameState.scene = payload.scene;
+        }
+        if (typeof payload.relationship_delta === "number" && !Number.isNaN(payload.relationship_delta)) {
+          gameState.relationship.yuta += payload.relationship_delta;
+        }
+        if (payload.flags && typeof payload.flags === "object") {
+          if (typeof payload.flags.hasIntroducedSelf === "boolean") {
+            gameState.hasIntroducedSelf = payload.flags.hasIntroducedSelf;
+          }
+        }
+      }
+
+      function parseAiResponse(result) {
+        const content = result?.choices?.[0]?.message?.content;
+        if (!content) {
+          throw new Error("Story AI returned an empty response.");
+        }
+        const text =
+          Array.isArray(content) && content.length
+            ? content.map((chunk) => (typeof chunk === "string" ? chunk : chunk?.text ?? "")).join("")
+            : content;
+        try {
+          return JSON.parse(text);
+        } catch (error) {
+          throw new Error("AI returned invalid JSON: " + error.message);
+        }
+      }
+
+      // Sends the conversation to the model and asks for the next beat.
+      async function requestStoryBeat(playerText) {
+        const payload = {
+          model: MODEL,
+          messages: buildMessages(playerText),
+          temperature: 0.85,
+          max_tokens: 500
+        };
+        const response = await fetch(RESPONSE_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          const message = data?.error?.message || `HTTP ${response.status}`;
+          throw new Error(message);
+        }
+        return parseAiResponse(data);
+      }
+
+      async function runStoryTurn(playerText) {
+        if (!apiKey) {
+          addMessage("Add your Groq API key in the header to contact the story model.", "system");
+          return;
+        }
+        if (isProcessingTurn) {
+          addMessage("Still waiting on the previous turn. Give it a moment.", "system");
+          return;
+        }
+
+        isProcessingTurn = true;
+        setStatus("Contacting story AI...");
+        micBtn.disabled = true;
+
+        try {
+          const aiPayload = await requestStoryBeat(playerText);
+          const combinedText = aiPayload.prompt
+            ? `${aiPayload.response}\n\n${aiPayload.prompt}`
+            : aiPayload.response;
+
+          applyStateUpdates(aiPayload);
+          remember("user", `Player: ${playerText}`);
+          remember(
+            "assistant",
+            [
+              `Narration: ${aiPayload.response}`,
+              aiPayload.prompt ? `Prompt: ${aiPayload.prompt}` : "",
+              aiPayload.scene ? `Scene: ${aiPayload.scene}` : "",
+              typeof aiPayload.relationship_delta === "number"
+                ? `Relationship delta: ${aiPayload.relationship_delta}`
+                : ""
+            ]
+              .filter(Boolean)
+              .join("\n")
+          );
+
+          addMessage(combinedText, "game");
+          speak(aiPayload.response);
+        } catch (error) {
+          console.error(error);
+          addMessage("Story engine error: " + error.message, "system");
+        } finally {
+          isProcessingTurn = false;
+          setStatus(listening ? "Listening..." : "Idle");
+          if (!listening) {
+            micBtn.disabled = false;
+            micBtn.textContent = "Mic - Tap to Talk";
+          }
+        }
+      }
+
+      function handlePlayerInput(rawText) {
+        const text = rawText.trim();
+        if (!text) {
+          return;
+        }
+        addMessage(text, "player");
+        runStoryTurn(text);
+      }
+
+      if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SR();
+        recognition.lang = "en-US";
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = () => {
+          listening = true;
+          micBtn.classList.add("listening");
+          micBtn.textContent = "Mic - Listening...";
+          setStatus("Listening...");
+        };
+
+        recognition.onend = () => {
+          listening = false;
+          micBtn.classList.remove("listening");
+          micBtn.textContent = "Mic - Tap to Talk";
+          if (!isProcessingTurn) {
+            micBtn.disabled = false;
+            setStatus("Idle");
+          }
+        };
+
+        recognition.onerror = (event) => {
+          setStatus("Error: " + event.error);
+        };
+
+        recognition.onresult = (event) => {
+          const transcript = event.results?.[0]?.[0]?.transcript || "";
+          handlePlayerInput(transcript);
+        };
+      } else {
+        micBtn.disabled = true;
+        setStatus("SpeechRecognition not supported in this browser.");
+      }
+
+      micBtn.addEventListener("click", () => {
+        if (!recognition) {
+          return;
+        }
+        if (!listening) {
+          recognition.start();
+        } else {
+          recognition.stop();
+        }
+      });
+
+      saveKeyBtn.addEventListener("click", () => {
+        const value = apiKeyInput.value.trim();
+        if (!value) {
+          addMessage("Enter a valid API key before saving.", "system");
+          return;
+        }
+        apiKey = value;
+        window.localStorage.setItem(STORAGE_KEY, apiKey);
+        addMessage("Groq API key saved locally in this browser.", "system");
+      });
+
+      clearKeyBtn.addEventListener("click", () => {
+        apiKeyInput.value = "";
+        apiKey = "";
+        window.localStorage.removeItem(STORAGE_KEY);
+        addMessage("Groq API key cleared from this device.", "system");
+      });
+
+      addMessage(
+        "You step into a new classroom for the first time.\nEveryone turns to look at you.\n\nWhen you're ready, tap the mic and tell the room how you feel.",
+        "game"
+      );
+      if (!apiKey) {
+        addMessage("Tip: add your Groq API key above to let the AI drive the narrative.", "system");
+      }
+    })();
+  </script>
+</body>
+</html>
