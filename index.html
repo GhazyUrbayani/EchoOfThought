@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo of Thought - Demo Lomba</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+    <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            background-color: #0d0d0d;
+            color: #f0f0f0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        main {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #webgazerVideoFeed, 
+        #webgazerFaceOverlay, 
+        #webgazerFaceFeedbackBox,
+        .webgazer_face_feedback {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            position: fixed !important;
+            top: -9999px !important;
+            left: -9999px !important;
+        }
+        #permission-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            text-align: center;
+            padding: 20px;
+        }
+        #permission-modal h1 {
+            color: #fff;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        #permission-modal p {
+            color: #ccc;
+            font-size: 1rem;
+            max-width: 500px;
+            margin-bottom: 30px;
+        }
+        #permission-button {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        #permission-button:hover {
+            background-color: #45a049;
+        }
+        #loading-text {
+            display: none;
+            font-size: 1.2rem;
+            color: #fff;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="permission-modal">
+        <h1>Echo of Thought</h1>
+        <p>Aplikasi ini membaca tatapan matamu. Izinkan akses webcam untuk memulai.</p>
+        <button id="permission-button">Izinkan Kamera</button>
+        <p id="loading-text">Memulai AI WebGazer... Harap tunggu.</p>
+    </div>
+
+    <main id="main"></main>
+
+    <script>
+        let gazeX, gazeY;
+        let displayGazeX, displayGazeY;
+        let lastGazeUpdate = 0;
+        const GAZE_UPDATE_INTERVAL = 150;
+        let gameState = 'START';
+        let calibrationPoints = [];
+        let calibrationIndex = 0;
+        const TOTAL_CALIBRATION_POINTS = 9;
+
+        class GazeOrb {
+            constructor(label, quadrant, color) {
+                this.label = label;
+                this.quadrant = quadrant;
+                this.color = color;
+                this.timer = 0;
+                this.hover = false;
+                this.brightness = 0;
+            }
+
+            checkGaze() {
+                if (!gazeX || !gazeY) return;
+
+                let isLeft = gazeX < windowWidth / 2;
+                let isTop = gazeY < windowHeight / 2;
+
+                if (this.quadrant === 'top-left') {
+                    this.hover = isLeft && isTop;
+                } else if (this.quadrant === 'top-right') {
+                    this.hover = !isLeft && isTop;
+                } else if (this.quadrant === 'bottom-left') {
+                    this.hover = isLeft && !isTop;
+                } else if (this.quadrant === 'bottom-right') {
+                    this.hover = !isLeft && !isTop;
+                }
+            }
+
+            update() {
+                if (this.hover) {
+                    this.timer++;
+                    this.brightness = lerp(this.brightness, 80, 0.1);
+                } else {
+                    this.timer = 0;
+                    this.brightness = lerp(this.brightness, 20, 0.1);
+                }
+            }
+
+            draw() {
+                let x, y, w, h;
+                w = windowWidth / 2;
+                h = windowHeight / 2;
+
+                if (this.quadrant === 'top-left') {
+                    x = 0; y = 0;
+                } else if (this.quadrant === 'top-right') {
+                    x = windowWidth / 2; y = 0;
+                } else if (this.quadrant === 'bottom-left') {
+                    x = 0; y = windowHeight / 2;
+                } else if (this.quadrant === 'bottom-right') {
+                    x = windowWidth / 2; y = windowHeight / 2;
+                }
+
+                fill(this.color[0], this.color[1], this.color[2], this.brightness);
+                noStroke();
+                rect(x, y, w, h);
+
+                stroke(255, 100);
+                strokeWeight(3);
+                line(windowWidth / 2, 0, windowWidth / 2, windowHeight);
+                line(0, windowHeight / 2, windowWidth, windowHeight / 2);
+
+                noStroke();
+                fill(255);
+                textSize(36);
+                textAlign(CENTER, CENTER);
+                text(this.label, x + w / 2, y + h / 2);
+
+                if (this.timer > 0) {
+                    let angle = map(this.timer, 0, GAZE_TIME_TO_SELECT, 0, TWO_PI);
+                    let centerX = x + w / 2;
+                    let centerY = y + h / 2;
+                    noFill();
+                    stroke(255, 255, 0);
+                    strokeWeight(8);
+                    arc(centerX, centerY, 120, 120, -HALF_PI, -HALF_PI + angle);
+                    fill(255, 255, 0);
+                    noStroke();
+                    textSize(20);
+                    let percent = Math.floor((this.timer / GAZE_TIME_TO_SELECT) * 100);
+                    text(percent + '%', centerX, centerY + 60);
+                }
+            }
+        }
+
+        let orbA, orbB, orbC, orbD;
+        let selectedChoice = "";
+        const GAZE_TIME_TO_SELECT = 120;
+
+        function setup() {
+            let canvas = createCanvas(windowWidth, windowHeight);
+            canvas.parent('main');
+            textAlign(CENTER, CENTER);
+            textFont('Courier New');
+            orbA = new GazeOrb('HARAPAN', 'top-left', [100, 150, 255]);
+            orbB = new GazeOrb('KETAKUTAN', 'top-right', [200, 50, 100]);
+            orbC = new GazeOrb('KETENANGAN', 'bottom-left', [100, 200, 150]);
+            orbD = new GazeOrb('KEBINGUNGAN', 'bottom-right', [200, 150, 50]);
+        }
+
+        function draw() {
+            background(13, 13, 13);
+            
+            if (gazeX && gazeY && millis() - lastGazeUpdate >= GAZE_UPDATE_INTERVAL) {
+                displayGazeX = gazeX;
+                displayGazeY = gazeY;
+                lastGazeUpdate = millis();
+            }
+            
+            switch (gameState) {
+                case 'CALIBRATING': drawCalibrationScene(); break;
+                case 'CHOICE': drawChoiceScene(); break;
+                case 'FINAL': drawFinalScene(); break;
+            }
+            if (displayGazeX && gameState !== 'START') {
+                 fill(255, 0, 0, 150);
+                 noStroke();
+                 ellipse(displayGazeX, displayGazeY, 20, 20);
+            }
+        }
+
+        function drawCalibrationScene() {
+            if (!calibrationPoints || calibrationPoints.length === 0) return;
+            let currentPoint = calibrationPoints[calibrationIndex];
+            if (!currentPoint) return;
+            fill(255);
+            textSize(24);
+            text(`Kalibrasi: ${calibrationIndex + 1} / ${TOTAL_CALIBRATION_POINTS}`, windowWidth / 2, windowHeight * 0.1);
+            textSize(18);
+            text("Tatap dan KLIK titik merah.", windowWidth / 2, windowHeight * 0.1 + 40);
+            stroke(255);
+            strokeWeight(2);
+            fill(255, 0, 0);
+            ellipse(currentPoint.x, currentPoint.y, 30, 30);
+        }
+
+        function drawChoiceScene() {
+            orbA.checkGaze(); orbB.checkGaze(); orbC.checkGaze(); orbD.checkGaze();
+            orbA.update(); orbB.update(); orbC.update(); orbD.update();
+            orbA.draw(); orbB.draw(); orbC.draw(); orbD.draw();
+            fill(0, 0, 0, 180); noStroke(); rect(windowWidth / 2 - 300, windowHeight / 2 - 60, 600, 120);
+            fill(255); textSize(24); textAlign(CENTER, CENTER); text("Pikiran mana yang kamu rasakan?", windowWidth / 2, windowHeight / 2 - 20);
+            textSize(18); text("Tatap area pilihanmu selama 2 detik.", windowWidth / 2, windowHeight / 2 + 20);
+            if (orbA.timer > GAZE_TIME_TO_SELECT) { selectedChoice = orbA.label; gameState = 'FINAL'; }
+            else if (orbB.timer > GAZE_TIME_TO_SELECT) { selectedChoice = orbB.label; gameState = 'FINAL'; }
+            else if (orbC.timer > GAZE_TIME_TO_SELECT) { selectedChoice = orbC.label; gameState = 'FINAL'; }
+            else if (orbD.timer > GAZE_TIME_TO_SELECT) { selectedChoice = orbD.label; gameState = 'FINAL'; }
+        }
+
+        function drawFinalScene() {
+            fill(255); textSize(32); text('Kamu telah memilih:', windowWidth / 2, windowHeight / 2 - 40);
+            if (selectedChoice === 'HARAPAN') { fill(100, 150, 255); }
+            else if (selectedChoice === 'KETAKUTAN') { fill(200, 50, 100); }
+            else if (selectedChoice === 'KETENANGAN') { fill(100, 200, 150); }
+            else if (selectedChoice === 'KEBINGUNGAN') { fill(200, 150, 50); }
+            text(selectedChoice, windowWidth / 2, windowHeight / 2 + 20);
+            textSize(18); fill(150); text("Demo Selesai.", windowWidth / 2, windowHeight * 0.9);
+        }
+
+        function mousePressed() {
+            if (gameState === 'CALIBRATING') {
+                if (webgazer && typeof webgazer.recordClick === 'function') webgazer.recordClick(mouseX, mouseY);
+                calibrationIndex++;
+                if (calibrationIndex >= TOTAL_CALIBRATION_POINTS) {
+                    gameState = 'CHOICE';
+                    if (webgazer) { webgazer.setMouseClickCallback(null); webgazer.setRegression('ridge'); }
+                }
+            }
+        }
+
+        function windowResized() {
+            if (!orbA || !orbB || !orbC || !orbD || frameCount === 0) return;
+            resizeCanvas(windowWidth, windowHeight);
+            initCalibrationPoints(); calibrationIndex = 0; if(gameState !== 'START') gameState = 'CALIBRATING';
+        }
+
+        async function startExperience() {
+            document.getElementById('permission-button').style.display = 'none';
+            document.getElementById('loading-text').style.display = 'block';
+            initCalibrationPoints();
+            await webgazer.setRegression('ridge')
+                .setGazeListener((data, elapsedTime) => { if (data) { gazeX = data.x; gazeY = data.y; } })
+                .saveDataAcrossSessions(false)
+                .begin();
+            webgazer.showVideoPreview(false).showPredictionPoints(false).applyKalmanFilter(true);
+            document.getElementById('permission-modal').style.display = 'none';
+            gameState = 'CALIBRATING';
+        }
+
+        function initCalibrationPoints() {
+            calibrationPoints = [];
+            let marginX = windowWidth * 0.1; let marginY = windowHeight * 0.1;
+            let w = windowWidth - (marginX * 2); let h = windowHeight - (marginY * 2);
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    calibrationPoints.push({ x: marginX + (w * (j / 2)), y: marginY + (h * (i / 2)) });
+                }
+            }
+        }
+
+        document.getElementById('permission-button').addEventListener('click', startExperience);
+
+    </script>
+</body>
+</html>
