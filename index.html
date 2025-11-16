@@ -402,7 +402,7 @@
             document.getElementById('permission-button').style.display = 'none';
             document.getElementById('loading-text').style.display = 'block';
             initCalibrationPoints();
-            await webgazer.setTracker('TFFacemesh')
+            await webgazer.setTracker('mediapipeIris')
                 .setRegression('ridge')
                 .setGazeListener((data, elapsedTime) => { if (data) { gazeX = data.x; gazeY = data.y; } })
                 .saveDataAcrossSessions(false)
