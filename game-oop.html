@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo of Thought - Cyberpunk Saga</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+    <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/webgazer.css">
+</head>
+<body>
+    <!-- Permission Modal -->
+    <div id="permission-modal" class="modal-overlay">
+        <div class="container-box">
+            <div class="cyber-box">
+                <h1 class="cyber-title">ECHO OF THOUGHT</h1>
+                <p class="cyber-text">
+                    Aplikasi ini membaca tatapan matamu menggunakan AI.<br>
+                    Izinkan akses webcam untuk memulai pengalaman interaktif.
+                    <br><br>
+                    <strong style="color: #38d0e5;">PENTING: Pastikan wajah Anda TERANG dan tidak membelakangi jendela.</strong>
+                </p>
+                <button id="permission-button" class="cyber-button">IZINKAN KAMERA</button>
+                <p id="loading-text" class="loading-text">Memulai AI WebGazer... Harap tunggu.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Game Canvas -->
+    <main id="main"></main>
+
+    <!-- JavaScript Files - Order matters! -->
+    <script src="js/GameStateManager.js"></script>
+    <script src="js/GazeOrb.js"></script>
+    <script src="js/WebGazerManager.js"></script>
+    <script src="js/CalibrationManager.js"></script>
+    <script src="js/EchoOfThoughtGame.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+/* ========================================
+   MAIN STYLES - Global Variables & Base
+   ======================================== */
+
+:root {
+    /* Colors */
+    --color-primary: #38d0e5;
+    --color-primary-hover: #2ab8cc;
+    --color-bg-dark: #101622;
+    --color-bg-narrative: #1a3a68;
+    --color-text-light: #f2f2f2;
+    --color-shadow: #000000;
+    
+    /* Spacing */
+    --spacing-sm: 20px;
+    --spacing-md: 30px;
+    --spacing-lg: 40px;
+    
+    /* Border */
+    --border-width: 4px;
+    --border-color: var(--color-primary);
+    
+    /* Shadow */
+    --shadow-offset: 4px;
+    --shadow-color: var(--color-shadow);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://media.giphy.com/media/26BROrSHlmyzzHf3i/giphy.gif');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-light);
+    font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
+}
+
+html::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(16, 22, 34, 0.85);
+    z-index: 0;
+}
+
+main {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
