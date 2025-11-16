@@ -28,7 +28,21 @@
             width: 100%;
             height: 100%;
         }
-        #webgazerVideoFeed, 
+        #webgazerVideoFeed {
+            position: fixed !important;
+            top: 20px !important;
+            left: 20px !important;
+            width: 200px !important;
+            height: 200px !important;
+            border-radius: 50% !important;
+            border: 4px solid #00ff00 !important;
+            z-index: 999 !important;
+            object-fit: cover !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5) !important;
+        }
         #webgazerFaceOverlay, 
         #webgazerFaceFeedbackBox,
         .webgazer_face_feedback {
@@ -109,6 +123,8 @@
         let calibrationPoints = [];
         let calibrationIndex = 0;
         const TOTAL_CALIBRATION_POINTS = 9;
+        let faceCanvas, faceCtx;
+        let videoElement;
 
         class GazeOrb {
             constructor(label, quadrant, color) {
@@ -207,10 +223,91 @@
             orbB = new GazeOrb('KETAKUTAN', 'top-right', [200, 50, 100]);
             orbC = new GazeOrb('KETENANGAN', 'bottom-left', [100, 200, 150]);
             orbD = new GazeOrb('KEBINGUNGAN', 'bottom-right', [200, 150, 50]);
+            
+            // Create canvas for face processing with higher resolution
+            faceCanvas = document.createElement('canvas');
+            faceCanvas.width = 400;  // Higher internal resolution
+            faceCanvas.height = 400;
+            faceCanvas.style.position = 'fixed';
+            faceCanvas.style.top = '20px';
+            faceCanvas.style.left = '20px';
+            faceCanvas.style.width = '200px';  // Display size
+            faceCanvas.style.height = '200px';
+            faceCanvas.style.borderRadius = '50%';
+            faceCanvas.style.border = '4px solid #00ff00';
+            faceCanvas.style.zIndex = '1000';
+            faceCanvas.style.boxShadow = '0 0 20px rgba(0, 255, 0, 0.5)';
+            faceCanvas.style.imageRendering = 'auto';  // Smooth rendering
+            document.body.appendChild(faceCanvas);
+            faceCtx = faceCanvas.getContext('2d', { alpha: false, willReadFrequently: true });
+            faceCtx.imageSmoothingEnabled = true;
+            faceCtx.imageSmoothingQuality = 'high';
+        }
+
+        function processVideoFeed() {
+            if (!videoElement) {
+                videoElement = document.getElementById('webgazerVideoFeed');
+            }
+            
+            if (videoElement && videoElement.videoWidth > 0) {
+                faceCtx.save();
+                
+                // Clear canvas with black background
+                faceCtx.fillStyle = '#000000';
+                faceCtx.fillRect(0, 0, 400, 400);
+                
+                // Create circular clipping path (scaled for higher resolution)
+                faceCtx.beginPath();
+                faceCtx.arc(200, 200, 190, 0, Math.PI * 2);
+                faceCtx.clip();
+                
+                // Enable high quality image smoothing
+                faceCtx.imageSmoothingEnabled = true;
+                faceCtx.imageSmoothingQuality = 'high';
+                
+                // Draw video at higher resolution
+                faceCtx.drawImage(videoElement, 0, 0, 400, 400);
+                
+                // Get image data to process
+                let imageData = faceCtx.getImageData(0, 0, 400, 400);
+                let data = imageData.data;
+                
+                // Convert to high contrast silhouette with better threshold
+                for (let i = 0; i < data.length; i += 4) {
+                    let brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                    // Create silhouette effect - dark areas become black, bright areas stay
+                    if (brightness > 70) {
+                        // Keep original colors with slight enhancement
+                        data[i] = Math.min(255, data[i] * 1.05);
+                        data[i + 1] = Math.min(255, data[i + 1] * 1.05);
+                        data[i + 2] = Math.min(255, data[i + 2] * 1.05);
+                    } else {
+                        // Darken background
+                        data[i] = 0;
+                        data[i + 1] = 0;
+                        data[i + 2] = 0;
+                    }
+                }
+                
+                faceCtx.putImageData(imageData, 0, 0);
+                faceCtx.restore();
+                
+                // Draw oval border (scaled)
+                faceCtx.strokeStyle = '#00ff00';
+                faceCtx.lineWidth = 6;
+                faceCtx.beginPath();
+                faceCtx.arc(200, 200, 194, 0, Math.PI * 2);
+                faceCtx.stroke();
+            }
         }
 
         function draw() {
             background(13, 13, 13);
+            
+            // Process video feed for face display
+            if (gameState !== 'START') {
+                processVideoFeed();
+            }
             
             if (gazeX && gazeY && millis() - lastGazeUpdate >= GAZE_UPDATE_INTERVAL) {
                 displayGazeX = gazeX;
@@ -234,15 +331,31 @@
             if (!calibrationPoints || calibrationPoints.length === 0) return;
             let currentPoint = calibrationPoints[calibrationIndex];
             if (!currentPoint) return;
+            
+            // Draw instruction text at bottom to avoid overlap
+            fill(0, 0, 0, 200);
+            noStroke();
+            rect(0, windowHeight - 120, windowWidth, 120);
+            
             fill(255);
-            textSize(24);
-            text(`Kalibrasi: ${calibrationIndex + 1} / ${TOTAL_CALIBRATION_POINTS}`, windowWidth / 2, windowHeight * 0.1);
-            textSize(18);
-            text("Tatap dan KLIK titik merah.", windowWidth / 2, windowHeight * 0.1 + 40);
-            stroke(255);
-            strokeWeight(2);
+            textSize(28);
+            textAlign(CENTER, CENTER);
+            text(`Kalibrasi: ${calibrationIndex + 1} / ${TOTAL_CALIBRATION_POINTS}`, windowWidth / 2, windowHeight - 80);
+            textSize(20);
+            text("Tatap dan KLIK titik merah.", windowWidth / 2, windowHeight - 40);
+            
+            // Draw calibration point
+            stroke(255, 255, 255);
+            strokeWeight(3);
             fill(255, 0, 0);
-            ellipse(currentPoint.x, currentPoint.y, 30, 30);
+            ellipse(currentPoint.x, currentPoint.y, 40, 40);
+            
+            // Add pulsing effect
+            noFill();
+            stroke(255, 0, 0, 150);
+            strokeWeight(2);
+            let pulseSize = 40 + sin(frameCount * 0.1) * 15;
+            ellipse(currentPoint.x, currentPoint.y, pulseSize, pulseSize);
         }
 
         function drawChoiceScene() {
@@ -289,22 +402,43 @@
             document.getElementById('permission-button').style.display = 'none';
             document.getElementById('loading-text').style.display = 'block';
             initCalibrationPoints();
-            await webgazer.setRegression('ridge')
+            await webgazer.setTracker('TFFacemesh')
+                .setRegression('ridge')
                 .setGazeListener((data, elapsedTime) => { if (data) { gazeX = data.x; gazeY = data.y; } })
                 .saveDataAcrossSessions(false)
                 .begin();
-            webgazer.showVideoPreview(false).showPredictionPoints(false).applyKalmanFilter(true);
+            webgazer.showVideoPreview(true).showPredictionPoints(false).applyKalmanFilter(true);
+            
+            // Wait a bit for video to initialize
+            setTimeout(() => {
+                videoElement = document.getElementById('webgazerVideoFeed');
+                if (videoElement) {
+                    videoElement.style.display = 'none'; // Hide original, use canvas instead
+                }
+            }, 500);
+            
             document.getElementById('permission-modal').style.display = 'none';
             gameState = 'CALIBRATING';
         }
 
         function initCalibrationPoints() {
             calibrationPoints = [];
-            let marginX = windowWidth * 0.1; let marginY = windowHeight * 0.1;
-            let w = windowWidth - (marginX * 2); let h = windowHeight - (marginY * 2);
+            let marginX = windowWidth * 0.15;
+            let marginY = windowHeight * 0.15;
+            let w = windowWidth - (marginX * 2);
+            let h = windowHeight - (marginY * 2) - 120; // Reserve space for bottom text
+            
             for (let i = 0; i < 3; i++) {
                 for (let j = 0; j < 3; j++) {
-                    calibrationPoints.push({ x: marginX + (w * (j / 2)), y: marginY + (h * (i / 2)) });
+                    let x = marginX + (w * (j / 2));
+                    let y = marginY + (h * (i / 2));
+                    
+                    // Avoid top-left corner where face display is (20-220px area)
+                    if (x < 250 && y < 250) {
+                        x = Math.max(x, 280);
+                    }
+                    
+                    calibrationPoints.push({ x: x, y: y });
                 }
             }
         }
