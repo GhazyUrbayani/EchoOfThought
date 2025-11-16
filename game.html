@@ -75,7 +75,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(16, 22, 34, 0.95);
+            background-image: url('19fa38c0884e9f650a2faa13edba9f8a.gif');
+            background-size: cover;
+            background-position: center;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -84,22 +86,45 @@
             text-align: center;
             padding: 20px;
         }
+        #permission-modal::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(16, 22, 34, 0.85);
+            z-index: 1;
+        }
+        .permission-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 600px;
+        }
+        .permission-box {
+            background-color: #1a3a68;
+            border: 4px solid #38d0e5;
+            box-shadow: 4px 4px 0px #000000;
+            padding: 40px 30px;
+            text-align: center;
+        }
         #permission-modal h1 {
             color: #38d0e5;
-            font-size: 2rem;
-            margin-bottom: 20px;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
             text-shadow: 3px 3px 0 #1a3a68, 6px 6px 0 #000;
+            line-height: 1.3;
         }
         #permission-modal p {
             color: #f2f2f2;
-            font-size: 0.9rem;
-            max-width: 600px;
+            font-size: 0.85rem;
             margin-bottom: 30px;
-            line-height: 1.6;
+            line-height: 1.8;
         }
         #permission-button {
             padding: 15px 30px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
             background-color: #1a3a68;
             color: #f2f2f2;
@@ -107,6 +132,9 @@
             cursor: pointer;
             box-shadow: 4px 4px 0px #000000;
             transition: all 0.1s;
+            text-transform: uppercase;
+            width: 100%;
+            max-width: 400px;
         }
         #permission-button:hover {
             background-color: #38d0e5;
@@ -120,21 +148,41 @@
         }
         #loading-text {
             display: none;
-            font-size: 1rem;
+            font-size: 0.85rem;
             color: #38d0e5;
             margin-top: 20px;
+        }
+        @media (max-width: 600px) {
+            #permission-modal h1 {
+                font-size: 1.8rem;
+            }
+            #permission-modal p {
+                font-size: 0.75rem;
+            }
+            #permission-button {
+                font-size: 0.7rem;
+                padding: 12px 20px;
+            }
+            .permission-box {
+                padding: 30px 20px;
+            }
         }
     </style>
 </head>
 <body>
     <div id="permission-modal">
-        <h1>ECHO OF THOUGHT</h1>
-        <p>Aplikasi ini membaca tatapan matamu menggunakan AI. <br> Izinkan akses webcam untuk memulai pengalaman interaktif.
-            <br><br>
-            <strong style="color: #38d0e5;">PENTING: Pastikan wajah Anda TERANG dan tidak membelakangi jendela.</strong>
-        </p>
-        <button id="permission-button">IZINKAN KAMERA</button>
-        <p id="loading-text">Memulai AI WebGazer... Harap tunggu.</p>
+        <div class="permission-container">
+            <div class="permission-box">
+                <h1>ECHO OF THOUGHT</h1>
+                <p>Aplikasi ini membaca tatapan matamu menggunakan AI.<br>
+                   Izinkan akses webcam untuk memulai pengalaman interaktif.
+                   <br><br>
+                   <strong style="color: #38d0e5;">PENTING: Pastikan wajah Anda TERANG dan tidak membelakangi jendela.</strong>
+                </p>
+                <button id="permission-button">IZINKAN KAMERA</button>
+                <p id="loading-text">Memulai AI WebGazer... Harap tunggu.</p>
+            </div>
+        </div>
     </div>
 
     <main id="main"></main>
