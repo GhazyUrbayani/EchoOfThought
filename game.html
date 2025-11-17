@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo of Thought - Cyberpunk Saga</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+    <script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://media.giphy.com/media/26BROrSHlmyzzHf3i/giphy.gif');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #101622;
+            color: #f2f2f2;
+            font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
+        }
+        html::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(16, 22, 34, 0.85);
+            z-index: 0;
+        }
+        main {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        #webgazerVideoFeed {
+            position: fixed !important;
+            top: 20px !important;
+            left: 20px !important;
+            width: 200px !important;
+            height: 200px !important;
+            border-radius: 50% !important;
+            border: 4px solid #38d0e5 !important;
+            z-index: 999 !important;
+            object-fit: cover !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            box-shadow: 0 0 20px rgba(56, 208, 229, 0.5) !important;
+        }
+        #webgazerFaceOverlay, 
+        #webgazerFaceFeedbackBox,
+        .webgazer_face_feedback {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            position: fixed !important;
+            top: -9999px !important;
+            left: -9999px !important;
+        }
+        #permission-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('19fa38c0884e9f650a2faa13edba9f8a.gif');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            text-align: center;
+            padding: 20px;
+        }
+        #permission-modal::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(16, 22, 34, 0.85);
+            z-index: 1;
+        }
+        .permission-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 600px;
+        }
+        .permission-box {
+            background-color: #1a3a68;
+            border: 4px solid #38d0e5;
+            box-shadow: 4px 4px 0px #000000;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        #permission-modal h1 {
+            color: #38d0e5;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 3px 3px 0 #1a3a68, 6px 6px 0 #000;
+            line-height: 1.3;
+        }
+        #permission-modal p {
+            color: #f2f2f2;
+            font-size: 0.85rem;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+        #permission-button {
+            padding: 15px 30px;
+            font-size: 0.9rem;
+            font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
+            background-color: #1a3a68;
+            color: #f2f2f2;
+            border: 4px solid #38d0e5;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px #000000;
+            transition: all 0.1s;
+            text-transform: uppercase;
+            width: 100%;
+            max-width: 400px;
+        }
+        #permission-button:hover {
+            background-color: #38d0e5;
+            color: #1a3a68;
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #000000;
+        }
+        #permission-button:active {
+            transform: translate(4px, 4px);
+            box-shadow: none;
+        }
+        #loading-text {
+            display: none;
+            font-size: 0.85rem;
+            color: #38d0e5;
+            margin-top: 20px;
+        }
+        @media (max-width: 600px) {
+            #permission-modal h1 {
+                font-size: 1.8rem;
+            }
+            #permission-modal p {
+                font-size: 0.75rem;
+            }
+            #permission-button {
+                font-size: 0.7rem;
+                padding: 12px 20px;
+            }
+            .permission-box {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="permission-modal">
+        <div class="permission-container">
+            <div class="permission-box">
+                <h1>ECHO OF THOUGHT</h1>
+                <p>Aplikasi ini membaca tatapan matamu menggunakan AI.<br>
+                   Izinkan akses webcam untuk memulai pengalaman interaktif.
+                   <br><br>
+                   <strong style="color: #38d0e5;">PENTING: Pastikan wajah Anda TERANG dan tidak membelakangi jendela.</strong>
+                </p>
+                <button id="permission-button">IZINKAN KAMERA</button>
+                <p id="loading-text">Memulai AI WebGazer... Harap tunggu.</p>
+            </div>
+        </div>
+    </div>
+
+    <main id="main"></main>
+
+    <script>
+        let gazeX, gazeY;
+        let displayGazeX, displayGazeY;
+        let lastGazeUpdate = 0;
+        const GAZE_UPDATE_INTERVAL = 150;
+        let gameState = 'START';
+        let calibrationPoints = [];
+        let calibrationIndex = 0;
+        const TOTAL_CALIBRATION_POINTS = 9;
+        let faceCanvas, faceCtx;
+        let videoElement;
+
+        class GazeOrb {
+            constructor(label, quadrant, color) {
+                this.label = label;
+                this.quadrant = quadrant;
+                this.color = color;
+                this.timer = 0;
+                this.hover = false;
+                this.brightness = 0;
+            }
+
+            checkGaze() {
+                if (!gazeX || !gazeY) return;
+
+                let isLeft = gazeX < windowWidth / 2;
+                let isTop = gazeY < windowHeight / 2;
+
+                if (this.quadrant === 'top-left') {
+                    this.hover = isLeft && isTop;
+                } else if (this.quadrant === 'top-right') {
+                    this.hover = !isLeft && isTop;
+                } else if (this.quadrant === 'bottom-left') {
+                    this.hover = isLeft && !isTop;
+                } else if (this.quadrant === 'bottom-right') {
+                    this.hover = !isLeft && !isTop;
+                }
+            }
+
+            update() {
+                if (this.hover) {
+                    this.timer++;
+                    this.brightness = lerp(this.brightness, 80, 0.1);
+                } else {
+                    this.timer = 0;
+                    this.brightness = lerp(this.brightness, 20, 0.1);
+                }
+            }
+
+            draw() {
+                let x, y, w, h;
+                w = windowWidth / 2;
+                h = windowHeight / 2;
+
+                if (this.quadrant === 'top-left') {
+                    x = 0; y = 0;
+                } else if (this.quadrant === 'top-right') {
+                    x = windowWidth / 2; y = 0;
+                } else if (this.quadrant === 'bottom-left') {
+                    x = 0; y = windowHeight / 2;
+                } else if (this.quadrant === 'bottom-right') {
+                    x = windowWidth / 2; y = windowHeight / 2;
+                }
+
+                fill(this.color[0], this.color[1], this.color[2], this.brightness);
+                noStroke();
+                rect(x, y, w, h);
+
+                stroke(56, 208, 229, 100);
+                strokeWeight(3);
+                line(windowWidth / 2, 0, windowWidth / 2, windowHeight);
+                line(0, windowHeight / 2, windowWidth, windowHeight / 2);
+
+                noStroke();
+                fill(242, 242, 242);
+                textSize(36);
+                textAlign(CENTER, CENTER);
+                text(this.label, x + w / 2, y + h / 2);
+
+                if (this.timer > 0) {
+                    let angle = map(this.timer, 0, GAZE_TIME_TO_SELECT, 0, TWO_PI);
+                    let centerX = x + w / 2;
+                    let centerY = y + h / 2;
+                    noFill();
+                    stroke(56, 208, 229);
+                    strokeWeight(8);
+                    arc(centerX, centerY, 120, 120, -HALF_PI, -HALF_PI + angle);
+                    fill(56, 208, 229);
+                    noStroke();
+                    textSize(20);
+                    let percent = Math.floor((this.timer / GAZE_TIME_TO_SELECT) * 100);
+                    text(percent + '%', centerX, centerY + 60);
+                }
+            }
+        }
+
+        let orbA, orbB, orbC, orbD;
+        let selectedChoice = "";
+        const GAZE_TIME_TO_SELECT = 120;
+
+        function setup() {
+            let canvas = createCanvas(windowWidth, windowHeight);
+            canvas.parent('main');
+            textAlign(CENTER, CENTER);
+            textFont('Press Start 2P');
+            orbA = new GazeOrb('HARAPAN', 'top-left', [100, 150, 255]);
+            orbB = new GazeOrb('KETAKUTAN', 'top-right', [200, 50, 100]);
+            orbC = new GazeOrb('KETENANGAN', 'bottom-left', [100, 200, 150]);
+            orbD = new GazeOrb('KEBINGUNGAN', 'bottom-right', [200, 150, 50]);
+            
+            // Create canvas for face processing with higher resolution
+            faceCanvas = document.createElement('canvas');
+            faceCanvas.width = 400;  // Higher internal resolution
+            faceCanvas.height = 400;
+            faceCanvas.style.position = 'fixed';
+            faceCanvas.style.top = '20px';
+            faceCanvas.style.left = '20px';
+            faceCanvas.style.width = '200px';  // Display size
+            faceCanvas.style.height = '200px';
+            faceCanvas.style.borderRadius = '50%';
+            faceCanvas.style.border = '4px solid #38d0e5';
+            faceCanvas.style.zIndex = '1000';
+            faceCanvas.style.boxShadow = '0 0 20px rgba(56, 208, 229, 0.5)';
+            faceCanvas.style.imageRendering = 'auto';  // Smooth rendering
+            document.body.appendChild(faceCanvas);
+            faceCtx = faceCanvas.getContext('2d', { alpha: false, willReadFrequently: true });
+            faceCtx.imageSmoothingEnabled = true;
+            faceCtx.imageSmoothingQuality = 'high';
+        }
+
+        function processVideoFeed() {
+            if (!videoElement) {
+                videoElement = document.getElementById('webgazerVideoFeed');
+            }
+            
+            if (videoElement && videoElement.videoWidth > 0) {
+                faceCtx.save();
+                
+                // Clear canvas with black background
+                faceCtx.fillStyle = '#000000';
+                faceCtx.fillRect(0, 0, 400, 400);
+                
+                // Create circular clipping path (scaled for higher resolution)
+                faceCtx.beginPath();
+                faceCtx.arc(200, 200, 190, 0, Math.PI * 2);
+                faceCtx.clip();
+                
+                // Enable high quality image smoothing
+                faceCtx.imageSmoothingEnabled = true;
+                faceCtx.imageSmoothingQuality = 'high';
+                
+                // Draw video at higher resolution
+                faceCtx.drawImage(videoElement, 0, 0, 400, 400);
+                
+                // Get image data to process
+                let imageData = faceCtx.getImageData(0, 0, 400, 400);
+                let data = imageData.data;
+                
+                // Convert to high contrast silhouette with better threshold
+                for (let i = 0; i < data.length; i += 4) {
+                    let brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                    // Create silhouette effect - dark areas become black, bright areas stay
+                    if (brightness > 70) {
+                        // Keep original colors with slight enhancement
+                        data[i] = Math.min(255, data[i] * 1.05);
+                        data[i + 1] = Math.min(255, data[i + 1] * 1.05);
+                        data[i + 2] = Math.min(255, data[i + 2] * 1.05);
+                    } else {
+                        // Darken background
+                        data[i] = 0;
+                        data[i + 1] = 0;
+                        data[i + 2] = 0;
+                    }
+                }
+                
+                faceCtx.putImageData(imageData, 0, 0);
+                faceCtx.restore();
+                
+                // Draw oval border with cyan color (scaled)
+                faceCtx.strokeStyle = '#38d0e5';
+                faceCtx.lineWidth = 6;
+                faceCtx.beginPath();
+                faceCtx.arc(200, 200, 194, 0, Math.PI * 2);
+                faceCtx.stroke();
+            }
+        }
+
+        function draw() {
+            background(16, 22, 34);
+            
+            // Process video feed for face display
+            if (gameState !== 'START') {
+                processVideoFeed();
+            }
+            
+            if (gazeX && gazeY && millis() - lastGazeUpdate >= GAZE_UPDATE_INTERVAL) {
+                displayGazeX = gazeX;
+                displayGazeY = gazeY;
+                lastGazeUpdate = millis();
+            }
+            
+            switch (gameState) {
+                case 'CALIBRATING': drawCalibrationScene(); break;
+                case 'CHOICE': drawChoiceScene(); break;
+                case 'FINAL': drawFinalScene(); break;
+            }
+            if (displayGazeX && gameState !== 'START') {
+                 fill(56, 208, 229, 150);
+                 noStroke();
+                 ellipse(displayGazeX, displayGazeY, 20, 20);
+            }
+        }
+
+        function drawCalibrationScene() {
+            if (!calibrationPoints || calibrationPoints.length === 0) return;
+            let currentPoint = calibrationPoints[calibrationIndex];
+            if (!currentPoint) return;
+            
+            // Draw instruction text at bottom to avoid overlap
+            fill(26, 58, 104, 200);
+            noStroke();
+            rect(0, windowHeight - 120, windowWidth, 120);
+            
+            fill(242, 242, 242);
+            textSize(20);
+            textAlign(CENTER, CENTER);
+            text(`KALIBRASI: ${calibrationIndex + 1} / ${TOTAL_CALIBRATION_POINTS}`, windowWidth / 2, windowHeight - 80);
+            textSize(14);
+            text("TATAP DAN KLIK TITIK CYAN", windowWidth / 2, windowHeight - 40);
+            
+            // Draw calibration point
+            stroke(242, 242, 242);
+            strokeWeight(3);
+            fill(56, 208, 229);
+            ellipse(currentPoint.x, currentPoint.y, 40, 40);
+            
+            // Add pulsing effect
+            noFill();
+            stroke(56, 208, 229, 150);
+            strokeWeight(2);
+            let pulseSize = 40 + sin(frameCount * 0.1) * 15;
+            ellipse(currentPoint.x, currentPoint.y, pulseSize, pulseSize);
+        }
+
+        function drawChoiceScene() {
+            orbA.checkGaze(); orbB.checkGaze(); orbC.checkGaze(); orbD.checkGaze();
+            orbA.update(); orbB.update(); orbC.update(); orbD.update();
+            orbA.draw(); orbB.draw(); orbC.draw(); orbD.draw();
+            fill(26, 58, 104, 200); noStroke(); rect(windowWidth / 2 - 350, windowHeight / 2 - 80, 700, 160, 0);
+            stroke(56, 208, 229); strokeWeight(4); noFill();
+            rect(windowWidth / 2 - 350, windowHeight / 2 - 80, 700, 160, 0);
+            fill(242, 242, 242); noStroke(); textSize(20); textAlign(CENTER, CENTER); 
+            text("PIKIRAN MANA YANG KAMU RASAKAN?", windowWidth / 2, windowHeight / 2 - 30);
+            textSize(14); text("Tatap area pilihanmu selama 2 detik.", windowWidth / 2, windowHeight / 2 + 20);
+            if (orbA.timer > GAZE_TIME_TO_SELECT) { selectedChoice = orbA.label; gameState = 'FINAL'; }
+            else if (orbB.timer > GAZE_TIME_TO_SELECT) { selectedChoice = orbB.label; gameState = 'FINAL'; }
+            else if (orbC.timer > GAZE_TIME_TO_SELECT) { selectedChoice = orbC.label; gameState = 'FINAL'; }
+            else if (orbD.timer > GAZE_TIME_TO_SELECT) { selectedChoice = orbD.label; gameState = 'FINAL'; }
+        }
+
+        function drawFinalScene() {
+            fill(242, 242, 242); textSize(28); text('KAMU TELAH MEMILIH:', windowWidth / 2, windowHeight / 2 - 60);
+            if (selectedChoice === 'HARAPAN') { fill(100, 150, 255); }
+            else if (selectedChoice === 'KETAKUTAN') { fill(200, 50, 100); }
+            else if (selectedChoice === 'KETENANGAN') { fill(100, 200, 150); }
+            else if (selectedChoice === 'KEBINGUNGAN') { fill(200, 150, 50); }
+            textSize(40);
+            text(selectedChoice, windowWidth / 2, windowHeight / 2 + 20);
+            
+            // Auto redirect ke endgame.html setelah 3 detik
+            textSize(16); fill(56, 208, 229); 
+            text("Menuju hasil...", windowWidth / 2, windowHeight * 0.8);
+            
+            if (frameCount % 60 === 0) {
+                setTimeout(() => {
+                    window.location.href = 'endgame.html';
+                }, 3000);
+            }
+        }
+
+        function mousePressed() {
+            if (gameState === 'CALIBRATING') {
+                if (webgazer && typeof webgazer.recordClick === 'function') webgazer.recordClick(mouseX, mouseY);
+                calibrationIndex++;
+                if (calibrationIndex >= TOTAL_CALIBRATION_POINTS) {
+                    gameState = 'CHOICE';
+                    if (webgazer) { webgazer.setMouseClickCallback(null); webgazer.setRegression('ridge'); }
+                }
+            }
+        }
+
+        function windowResized() {
+            if (!orbA || !orbB || !orbC || !orbD || frameCount === 0) return;
+            resizeCanvas(windowWidth, windowHeight);
+            initCalibrationPoints(); calibrationIndex = 0; if(gameState !== 'START') gameState = 'CALIBRATING';
+        }
+
+        async function startExperience() {
+            document.getElementById('permission-button').style.display = 'none';
+            document.getElementById('loading-text').style.display = 'block';
+            initCalibrationPoints();
+            await webgazer.setTracker('mediapipeIris')
+                .setRegression('ridge')
+                .setGazeListener((data, elapsedTime) => { if (data) { gazeX = data.x; gazeY = data.y; } })
+                .saveDataAcrossSessions(false)
+                .begin();
+            webgazer.showVideoPreview(true).showPredictionPoints(false).applyKalmanFilter(true);
+            
+            // Wait a bit for video to initialize
+            setTimeout(() => {
+                videoElement = document.getElementById('webgazerVideoFeed');
+                if (videoElement) {
+                    videoElement.style.display = 'none'; // Hide original, use canvas instead
+                }
+            }, 500);
+            
+            document.getElementById('permission-modal').style.display = 'none';
+            gameState = 'CALIBRATING';
+        }
+
+        function initCalibrationPoints() {
+            calibrationPoints = [];
+            let marginX = windowWidth * 0.15;
+            let marginY = windowHeight * 0.15;
+            let w = windowWidth - (marginX * 2);
+            let h = windowHeight - (marginY * 2) - 120; // Reserve space for bottom text
+            
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    let x = marginX + (w * (j / 2));
+                    let y = marginY + (h * (i / 2));
+                    
+                    // Avoid top-left corner where face display is (20-220px area)
+                    if (x < 250 && y < 250) {
+                        x = Math.max(x, 280);
+                    }
+                    
+                    calibrationPoints.push({ x: x, y: y });
+                }
+            }
+        }
+
+        document.getElementById('permission-button').addEventListener('click', startExperience);
+
+    </script>
+</body>
+</html>
