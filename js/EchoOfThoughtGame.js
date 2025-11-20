@@ -181,11 +181,6 @@ class EchoOfThoughtGame {
         text("ECHO OF THOUGHT", width / 2, height / 2 - 150);
         drawingContext.shadowBlur = 0;
 
-        // Subtitle
-        fill(150, 160, 180);
-        textSize(16);
-        text("Pilih dengan tatapan", width / 2, height / 2 - 80);
-
         // Start button
         const btnWidth = 400;
         const btnHeight = 70;
@@ -775,10 +770,10 @@ class EchoOfThoughtGame {
     }
 
     getProgressLabel() {
-        if (!this.currentNodeId) return "EPISODE 1 · Pilih dengan tatapan";
+        if (!this.currentNodeId) return "EPISODE 1";
         const match = this.currentNodeId.match(/EP(\d+)/);
         const ep = match ? `EPISODE ${match[1]}` : "EPISODE 1";
-        return `${ep} · Pilih dengan tatapan`;
+        return `${ep}`;
     }
 
     prepareEndgame() {
