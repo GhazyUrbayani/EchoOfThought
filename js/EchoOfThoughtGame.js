@@ -9,6 +9,15 @@ class EchoOfThoughtGame {
         this.calibrationManager = null;
         this.orbs = [];
         this.isInitialized = false;
+
+        // Story engine integration
+        this.storyState = window.EchoStory ? new window.EchoStory.GameState() : null;
+        this.storyEngine = window.EchoStory ? new window.EchoStory.StoryEngine({ gameState: this.storyState }) : null;
+        this.storyChoices = [];
+        this.storyText = "Memuat cerita...";
+        this.storyLoading = false;
+        this.storyStarted = false;
+        this.currentNodeId = "BEGIN";
     }
 
     setup() {
@@ -20,10 +29,10 @@ class EchoOfThoughtGame {
 
         // Initialize orbs
         this.orbs = [
-            new GazeOrb('HARAPAN', 'top-left', [100, 150, 255]),
-            new GazeOrb('KETAKUTAN', 'top-right', [200, 50, 100]),
-            new GazeOrb('KETENANGAN', 'bottom-left', [100, 200, 150]),
-            new GazeOrb('KEBINGUNGAN', 'bottom-right', [200, 150, 50])
+            new GazeOrb('1.', 'top-left', [100, 150, 255]),
+            new GazeOrb('2.', 'top-right', [200, 50, 100]),
+            new GazeOrb('3.', 'bottom-left', [100, 200, 150]),
+            new GazeOrb('4.', 'bottom-right', [200, 150, 50])
         ];
 
         // Initialize calibration manager
@@ -70,41 +79,78 @@ class EchoOfThoughtGame {
     }
 
     drawChoiceScene() {
+        if (this.storyEngine && !this.storyStarted && !this.storyLoading) {
+            this.startStoryFlow();
+        }
+
         const gaze = this.webgazerManager.getGazePosition();
+
+        // Layout measurements (reserve top area for story panel)
+        const storyPanelHeight = Math.min(280, windowHeight * 0.3);
+        const storyPanelY = 12;
+        const playAreaY = storyPanelY + storyPanelHeight + 12;
+        const playAreaHeight = Math.max(200, windowHeight - playAreaY);
 
         // Update all orbs
         this.orbs.forEach(orb => {
-            orb.checkGaze(gaze.x, gaze.y, windowWidth, windowHeight);
+            orb.checkGaze(gaze.x, gaze.y, windowWidth, playAreaHeight, playAreaY, playAreaHeight);
             orb.update();
-            orb.draw(windowWidth, windowHeight);
+            orb.draw(windowWidth, windowHeight, playAreaY, playAreaHeight);
         });
 
-        // Draw instruction box
-        fill(26, 58, 104, 200);
+        // Draw instruction / story box
+        const boxWidth = Math.min(windowWidth - 120, 1080);
+        const boxHeight = storyPanelHeight;
+        const boxX = windowWidth / 2 - boxWidth / 2;
+        const boxY = storyPanelY;
+
+        // Back panel
         noStroke();
-        rect(windowWidth / 2 - 350, windowHeight / 2 - 80, 700, 160, 0);
-        
+        fill(10, 18, 32, 230);
+        rect(boxX - 4, boxY - 4, boxWidth + 8, boxHeight + 8, 0);
+
+        // Inner panel
+        fill(26, 58, 104, 230);
+        rect(boxX, boxY, boxWidth, boxHeight, 0);
         stroke(56, 208, 229);
         strokeWeight(4);
         noFill();
-        rect(windowWidth / 2 - 350, windowHeight / 2 - 80, 700, 160, 0);
+        rect(boxX, boxY, boxWidth, boxHeight, 0);
 
-        fill(242, 242, 242);
+        // Header
         noStroke();
-        textSize(20);
-        textAlign(CENTER, CENTER);
-        text("PIKIRAN MANA YANG KAMU RASAKAN?", windowWidth / 2, windowHeight / 2 - 30);
-        textSize(14);
-        text("Tatap area pilihanmu selama 2 detik.", windowWidth / 2, windowHeight / 2 + 20);
+        fill(56, 208, 229);
+        textSize(12);
+        textAlign(LEFT, TOP);
+        text("ECHO OF THOUGHT", boxX + 14, boxY + 14);
+        textAlign(RIGHT, TOP);
+        text(this.getProgressLabel(), boxX + boxWidth - 14, boxY + 14);
+
+        // Story text
+        textAlign(LEFT, TOP);
+        textSize(13);
+        if (typeof textFont === "function") {
+            textFont("Press Play 2P");
+        }
+        if (typeof textLeading === "function") {
+            textLeading(20);
+        }
+        if (typeof textWrap === "function") {
+            textWrap(WORD);
+        }
+        fill(242, 242, 242);
+        text(this.storyText || "Memuat cerita...", boxX + 14, boxY + 40, boxWidth - 28, boxHeight - 48);
+        // Restore font for UI elements
+        if (typeof textFont === "function") {
+            textFont("Press Start 2P");
+        }
 
         // Check for selection
-        for (let orb of this.orbs) {
+        this.orbs.forEach((orb, idx) => {
             if (orb.isSelected()) {
-                this.stateManager.setSelectedChoice(orb.label);
-                this.stateManager.setState('FINAL');
-                break;
+                this.handleStoryChoice(idx);
             }
-        }
+        });
     }
 
     drawFinalScene() {
@@ -162,6 +208,7 @@ class EchoOfThoughtGame {
                 this.stateManager.setState('CHOICE');
                 this.webgazerManager.setMouseClickCallback(null);
                 this.webgazerManager.setRegression('ridge');
+                this.startStoryFlow();
             }
         }
     }
@@ -185,9 +232,61 @@ class EchoOfThoughtGame {
         }
         return false;
     }
+
+    async startStoryFlow() {
+        if (!this.storyEngine || this.storyStarted) return;
+        this.storyStarted = true;
+        await this.loadStoryNode("BEGIN");
+    }
+
+    async loadStoryNode(nodeId) {
+        if (!this.storyEngine) return;
+        this.storyLoading = true;
+        try {
+            const payload = await this.storyEngine.requestStoryBeat(nodeId);
+            this.storyText = payload.response;
+            this.storyChoices = this.storyEngine.currentChoices || [];
+            this.currentNodeId = payload.id || nodeId;
+            this.applyChoicesToOrbs();
+        } catch (error) {
+            console.error("Story load error:", error);
+            this.storyText = "Echo tidak dapat memuat cerita. Coba lagi.";
+            this.storyChoices = [];
+        } finally {
+            this.storyLoading = false;
+        }
+    }
+
+    applyChoicesToOrbs() {
+        const labels = this.storyChoices.map((c, i) => `${i + 1}. ${c.text}`).slice(0, 4);
+        while (labels.length < 4) labels.push("...");
+        this.orbs.forEach((orb, idx) => {
+            orb.label = labels[idx] || "...";
+            orb.reset();
+        });
+    }
+
+    async handleStoryChoice(index) {
+        if (this.storyLoading || !this.storyChoices[index]) return;
+        const choiceObj = this.storyChoices[index];
+        if (choiceObj.delta) {
+            this.storyState.applyDelta(choiceObj.delta);
+        }
+        this.storyState.rememberChoice(choiceObj.text);
+        this.orbs.forEach(orb => orb.reset());
+        await this.loadStoryNode(choiceObj.nextId || "BEGIN");
+    }
+
+    getProgressLabel() {
+        if (!this.currentNodeId) return "EP";
+        const match = this.currentNodeId.match(/EP(\\d+)/);
+        const ep = match ? `EP${match[1]}` : "EP";
+        return `${ep} · Pilih dengan tatapan`;
+    }
 }
 
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = EchoOfThoughtGame;
 }
+

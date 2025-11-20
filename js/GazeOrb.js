@@ -11,11 +11,19 @@ class GazeOrb {
         this.brightness = 0;
     }
 
-    checkGaze(gazeX, gazeY, windowWidth, windowHeight) {
+    checkGaze(gazeX, gazeY, windowWidth, windowHeight, offsetY = 0, usableHeight = null) {
         if (!gazeX || !gazeY) return;
 
+        const effectiveHeight = usableHeight || windowHeight;
+        const localY = gazeY - offsetY;
+
+        if (localY < 0 || localY > effectiveHeight) {
+            this.hover = false;
+            return;
+        }
+
         let isLeft = gazeX < windowWidth / 2;
-        let isTop = gazeY < windowHeight / 2;
+        let isTop = localY < effectiveHeight / 2;
 
         switch (this.quadrant) {
             case 'top-left':
@@ -43,24 +51,24 @@ class GazeOrb {
         }
     }
 
-    draw(windowWidth, windowHeight) {
+    draw(windowWidth, windowHeight, offsetY = 0, usableHeight = null) {
         let x, y, w, h;
         w = windowWidth / 2;
-        h = windowHeight / 2;
+        h = (usableHeight || windowHeight) / 2;
 
         // Calculate position based on quadrant
         switch (this.quadrant) {
             case 'top-left':
-                x = 0; y = 0;
+                x = 0; y = offsetY;
                 break;
             case 'top-right':
-                x = windowWidth / 2; y = 0;
+                x = windowWidth / 2; y = offsetY;
                 break;
             case 'bottom-left':
-                x = 0; y = windowHeight / 2;
+                x = 0; y = offsetY + h;
                 break;
             case 'bottom-right':
-                x = windowWidth / 2; y = windowHeight / 2;
+                x = windowWidth / 2; y = offsetY + h;
                 break;
         }
 
@@ -69,18 +77,25 @@ class GazeOrb {
         noStroke();
         rect(x, y, w, h);
 
-        // Draw divider lines
+        // Draw divider lines limited to play area
         stroke(56, 208, 229, 100);
         strokeWeight(3);
-        line(windowWidth / 2, 0, windowWidth / 2, windowHeight);
-        line(0, windowHeight / 2, windowWidth, windowHeight / 2);
+        const totalHeight = usableHeight || h * 2;
+        line(windowWidth / 2, offsetY, windowWidth / 2, offsetY + totalHeight);
+        line(0, offsetY + totalHeight / 2, windowWidth, offsetY + totalHeight / 2);
 
         // Draw label
         noStroke();
         fill(242, 242, 242);
-        textSize(36);
         textAlign(CENTER, CENTER);
-        text(this.label, x + w / 2, y + h / 2);
+        textSize(16);
+        if (typeof textWrap === "function") {
+            textWrap(WORD);
+        }
+        const textBoxW = w * 0.8;
+        const textBoxX = x + w / 2 - textBoxW / 2;
+        const textBoxY = y + h / 2 - 40;
+        text(this.label, textBoxX, textBoxY, textBoxW, 120);
 
         // Draw progress indicator
         if (this.timer > 0) {
