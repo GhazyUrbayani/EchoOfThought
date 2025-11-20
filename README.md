@@ -8,57 +8,63 @@
 
 > **Peringatan:** Proyek ini membutuhkan akses ke **webcam** Anda untuk fungsionalitas penuh.
 
-**Echo of Thought** adalah eksperimen naratif web yang imersif di mana cerita beradaptasi bukan dengan apa yang Anda klik, tetapi dengan ke mana Anda melihat.
+**Echo of Thought** adalah interactive visual novel berbasis eye-gaze tracking di mana cerita beradaptasi bukan dengan apa yang Anda klik, tetapi dengan ke mana Anda melihat.
 
 Ini adalah submisi kami untuk Lomba Software Development **SEVENT 9.0** dengan tema "Game, Code, and Play: Sharpening Creativity and Skills" dan sub-tema "AI for New Opportunities".
 
 ---
 
-### 💡 Konsep Inti: *Empathy Engine*
+### 💡 Konsep Inti: *Pilih dengan Tatapan*
 
-Echo of Thought menantang interaksi web standar. Lupakan tombol. Lupakan kursor. Pemain memengaruhi cerita hanya dengan tatapan mata mereka.
+Echo of Thought menantang interaksi web standar. Lupakan tombol. Lupakan kursor. Pemain membuat pilihan cerita hanya dengan menatap opsi yang diinginkan.
 
-Ini bukan game; ini adalah **empathy engine**.
-
-Aplikasi ini dirancang untuk menciptakan koneksi yang lebih dalam antara pemain dan narasi. Kami mengeksplorasi bagaimana perhatian (*attention*) yang tidak disadari—tatapan singkat, fiksasi emosional—dapat secara langsung membentuk dan mengubah realitas digital di depan Anda.
+Aplikasi ini dirancang untuk menciptakan pengalaman storytelling yang unik dan imersif. Sistem eye-gaze tracking memungkinkan pemain untuk memilih dialog dan keputusan dalam cerita cyberpunk interaktif tanpa menyentuh keyboard atau mouse sama sekali.
 
 ---
 
-### ✨ Fitur Inovatif (The 'Wow Factor')
+### ✨ Fitur Utama
 
-#### 1. Interaksi Berbasis Tatapan (Gaze-Based Interaction)
-Interaksi 100% bebas-tangan. Pilihan dialog dipilih hanya dengan menatap pusaran visual. Objek di dunia game "merasa" dilihat dan akan bereaksi dengan animasi halus saat mata Anda tertuju padanya.
+#### 1. Eye-Gaze Selection System
+Interaksi 100% bebas-tangan menggunakan **WebGazer.js**. Pilihan dialog dipilih dengan menatap orb visual yang merepresentasikan setiap opsi. Sistem dwell-time (120 frame / ~2 detik) memastikan pemilihan yang disengaja dan akurat.
 
 <p align="center">
   <img src="https://placehold.co/600x300/2d2d2d/ffffff?text=Demo+Gaze+Interaction+(Ganti+dengan+GIF)" alt="Demo Interaksi Tatapan">
 </p>
 
-#### 2. Deteksi Emosi AI (AI for New Opportunities)
-Ini adalah inti dari solusi kami untuk sub-tema "AI for New Opportunities". Kami tidak hanya melacak *ke mana* pemain melihat. Kami menggunakan **WebGazer.js** untuk mendeteksi *micro-fixation* (tatapan intens singkat) pada wajah karakter atau objek. Fiksasi ini kami tafsirkan sebagai ketertarikan emosional, yang berfungsi sebagai pemicu untuk membuka alur cerita tersembunyi.
+#### 2. Dynamic Story Engine
+Cerita bercabang dengan 5 episode dan 4 ending berbeda berdasarkan pilihan pemain. Setiap keputusan memengaruhi relationship scores dengan karakter (Nara, Dimas, Salsa) dan Echo score yang menentukan akhir cerita.
 
-<p align="center">
-  <img src="https://placehold.co/600x300/2d2d2d/ffffff?text=Demo+Deteksi+Fiksasi+AI+(Ganti+dengan+GIF)" alt="Demo Deteksi AI">
-</p>
+#### 3. Telltale-Style Notifications
+Notifikasi karakter muncul di pojok kanan atas layar, memberikan feedback instant tentang dampak pilihan pemain terhadap hubungan dengan karakter - mirip dengan game Telltale.
 
-#### 3. Visual Generatif (Generative Visuals)
-Tidak ada UI statis. Latar belakang dan elemen cerita adalah seni generatif yang di-render secara *real-time* menggunakan **P5.js**. Visual ini berubah dan beradaptasi berdasarkan *mood* adegan dan input tatapan pemain, menciptakan pengalaman yang unik setiap saat.
+#### 4. Adaptive Layout System
+Layout orb pilihan menyesuaikan secara dinamis:
+- 2 pilihan: Kiri-Kanan
+- 3 pilihan: 2 Atas, 1 Bawah
+- 4 pilihan: Grid 2×2
+
+#### 5. Reading Timer
+Sistem reading state dengan timer 3 detik memastikan pemain punya waktu membaca narasi sebelum pilihan muncul, menciptakan pacing yang lebih nyaman.
+
+#### 6. Pixel-Perfect Aesthetics
+Font **Press Start 2P** dengan rendering pixel-perfect (noSmooth) menciptakan atmosfer cyberpunk retro-futuristic yang konsisten di seluruh UI.
 
 ---
 
-### 💻 Tech Stack (Strategi Inti)
-
-Kami sengaja memilih *stack* yang ringan, tanpa *framework*, untuk mendapatkan performa mentah dan kontrol penuh atas *render loop* dan *gaze tracking*.
+### 💻 Tech Stack
 
 <p align="center">
   <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript">
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5 Canvas">
   <img src="https://img.shields.io/badge/AI_/_ML-WebGazer.js-orange?style=for-the-badge" alt="WebGazer.js">
-  <img src="https://img.shields.io/badge/Generative_Art-P5.js-ED225D?style=for-the-badge" alt="P5.js">
+  <img src="https://img.shields.io/badge/Graphics-P5.js-ED225D?style=for-the-badge" alt="P5.js">
 </p>
 
--   **AI / Machine Learning**: `WebGazer.js` (Untuk *real-time gaze tracking* & deteksi fiksasi langsung di browser).
--   **Visuals & Interaction**: `P5.js` (Untuk *generative art* dan *interactive canvas*).
--   **Core**: Vanilla `JavaScript (ES6+)` & `HTML5 Canvas`.
+-   **Eye-Gaze Tracking**: `WebGazer.js v2.0` - Real-time gaze prediction menggunakan machine learning di browser
+-   **Graphics Engine**: `P5.js v1.9.0` - Canvas rendering dan visual effects
+-   **Architecture**: Object-Oriented JavaScript (ES6+) dengan class-based design
+-   **Story Engine**: Custom JSON-based story tree dengan state management
+-   **Styling**: Press Start 2P font, vanilla CSS dengan cyberpunk aesthetic
 
 ---
 
@@ -67,18 +73,27 @@ Kami sengaja memilih *stack* yang ringan, tanpa *framework*, untuk mendapatkan p
 #### Opsi 1: Akses Versi Live (Direkomendasikan)
 Proyek ini telah di-deploy dan dapat diakses langsung melalui browser Anda:
 
-➡️ **[MASUKKAN_LINK_DEPLOY_ANDA_DI_SINI]** ⬅️
+➡️ **[https://ghazyurbayani.github.io/EchoOfThought/](https://ghazyurbayani.github.io/EchoOfThought/)** ⬅️
 
-*(Contoh: `https://username.github.io/EchoOfThought/`)*
+**Persyaratan:**
+- Browser modern (Chrome/Edge/Firefox recommended)
+- Webcam aktif
+- Pencahayaan yang cukup terang
+
+**Cara Bermain:**
+1. Klik tombol **START GAME** di main menu
+2. Izinkan akses webcam saat browser meminta
+3. Ikuti proses kalibrasi dengan menatap 9 titik
+4. Pilih dialog dengan menatap orb selama ~2 detik
+5. Nikmati cerita yang dibentuk oleh pilihan tatapan Anda!
 
 #### Opsi 2: Menjalankan Secara Lokal
-Jika Anda ingin menjalankan proyek ini di komputer Anda:
 
 **PENTING:** Proyek ini **harus** dijalankan melalui *local server*. Membuka file `index.html` secara langsung (via `file://`) tidak akan berfungsi karena browser membatasi akses webcam untuk alasan keamanan.
 
 1.  **Clone Repositori:**
     ```bash
-    git clone [https://github.com/](https://github.com/)[USERNAME]/EchoOfThought.git
+    git clone https://github.com/GhazyUrbayani/EchoOfThought.git
     cd EchoOfThought
     ```
 2.  **Jalankan Server Lokal:**
