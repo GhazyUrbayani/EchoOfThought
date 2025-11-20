@@ -104,10 +104,11 @@ class EchoOfThoughtGame {
         const playAreaHeight = Math.max(200, windowHeight - playAreaY);
 
         // Update all orbs
+        const activeChoices = this.storyChoices.filter(c => c && c.text).length;
         this.orbs.forEach(orb => {
-            orb.checkGaze(gaze.x, gaze.y, windowWidth, playAreaHeight, playAreaY, playAreaHeight);
+            orb.checkGaze(gaze.x, gaze.y, windowWidth, playAreaHeight, playAreaY, playAreaHeight, activeChoices);
             orb.update();
-            orb.draw(windowWidth, windowHeight, playAreaY, playAreaHeight);
+            orb.draw(windowWidth, windowHeight, playAreaY, playAreaHeight, activeChoices);
         });
 
         // Draw instruction / story box
@@ -277,10 +278,17 @@ class EchoOfThoughtGame {
     }
 
     applyChoicesToOrbs() {
-        const labels = this.storyChoices.map((c, i) => `${i + 1}. ${c.text}`).slice(0, 4);
-        while (labels.length < 4) labels.push("...");
+        const validChoices = this.storyChoices.filter(c => c && c.text);
+        const labels = validChoices.map((c, i) => `${i + 1}. ${c.text}`);
+        
         this.orbs.forEach((orb, idx) => {
-            orb.label = labels[idx] || "...";
+            if (idx < labels.length) {
+                orb.label = labels[idx];
+                orb.visible = true;
+            } else {
+                orb.label = "";
+                orb.visible = false;
+            }
             orb.reset();
         });
     }

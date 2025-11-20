@@ -9,10 +9,11 @@ class GazeOrb {
         this.timer = 0;
         this.hover = false;
         this.brightness = 0;
+        this.visible = true;
     }
 
-    checkGaze(gazeX, gazeY, windowWidth, windowHeight, offsetY = 0, usableHeight = null) {
-        if (!gazeX || !gazeY) return;
+    checkGaze(gazeX, gazeY, windowWidth, windowHeight, offsetY = 0, usableHeight = null, activeChoices = 4) {
+        if (!gazeX || !gazeY || !this.visible) return;
 
         const effectiveHeight = usableHeight || windowHeight;
         const localY = gazeY - offsetY;
@@ -51,25 +52,67 @@ class GazeOrb {
         }
     }
 
-    draw(windowWidth, windowHeight, offsetY = 0, usableHeight = null) {
+    draw(windowWidth, windowHeight, offsetY = 0, usableHeight = null, activeChoices = 4) {
+        if (!this.visible) return;
+        
         let x, y, w, h;
-        w = windowWidth / 2;
-        h = (usableHeight || windowHeight) / 2;
+        const totalHeight = usableHeight || windowHeight;
 
-        // Calculate position based on quadrant
-        switch (this.quadrant) {
-            case 'top-left':
-                x = 0; y = offsetY;
-                break;
-            case 'top-right':
-                x = windowWidth / 2; y = offsetY;
-                break;
-            case 'bottom-left':
-                x = 0; y = offsetY + h;
-                break;
-            case 'bottom-right':
-                x = windowWidth / 2; y = offsetY + h;
-                break;
+        // Dynamic layout based on active choices
+        if (activeChoices === 1) {
+            // Full screen
+            x = 0;
+            y = offsetY;
+            w = windowWidth;
+            h = totalHeight;
+        } else if (activeChoices === 2) {
+            // Horizontal split (left/right)
+            w = windowWidth / 2;
+            h = totalHeight;
+            y = offsetY;
+            
+            if (this.quadrant === 'top-left' || this.quadrant === 'bottom-left') {
+                x = 0; // Left choice
+            } else {
+                x = windowWidth / 2; // Right choice
+            }
+        } else if (activeChoices === 3) {
+            // Top: 2 choices (left/right), Bottom: 1 choice (centered)
+            if (this.quadrant === 'top-left') {
+                x = 0;
+                y = offsetY;
+                w = windowWidth / 2;
+                h = totalHeight / 2;
+            } else if (this.quadrant === 'top-right') {
+                x = windowWidth / 2;
+                y = offsetY;
+                w = windowWidth / 2;
+                h = totalHeight / 2;
+            } else if (this.quadrant === 'bottom-left') {
+                x = 0;
+                y = offsetY + totalHeight / 2;
+                w = windowWidth;
+                h = totalHeight / 2;
+            }
+        } else {
+            // Original 4-quadrant layout
+            w = windowWidth / 2;
+            h = totalHeight / 2;
+
+            switch (this.quadrant) {
+                case 'top-left':
+                    x = 0; y = offsetY;
+                    break;
+                case 'top-right':
+                    x = windowWidth / 2; y = offsetY;
+                    break;
+                case 'bottom-left':
+                    x = 0; y = offsetY + h;
+                    break;
+                case 'bottom-right':
+                    x = windowWidth / 2; y = offsetY + h;
+                    break;
+            }
         }
 
         // Draw background
@@ -77,12 +120,22 @@ class GazeOrb {
         noStroke();
         rect(x, y, w, h);
 
-        // Draw divider lines limited to play area
+        // Draw divider lines based on layout
         stroke(56, 208, 229, 100);
         strokeWeight(3);
-        const totalHeight = usableHeight || h * 2;
-        line(windowWidth / 2, offsetY, windowWidth / 2, offsetY + totalHeight);
-        line(0, offsetY + totalHeight / 2, windowWidth, offsetY + totalHeight / 2);
+        
+        if (activeChoices === 2) {
+            // Only vertical line for 2 choices
+            line(windowWidth / 2, offsetY, windowWidth / 2, offsetY + totalHeight);
+        } else if (activeChoices === 3) {
+            // Vertical and horizontal lines for 3 choices
+            line(windowWidth / 2, offsetY, windowWidth / 2, offsetY + totalHeight / 2);
+            line(0, offsetY + totalHeight / 2, windowWidth, offsetY + totalHeight / 2);
+        } else if (activeChoices === 4) {
+            // Full grid for 4 choices
+            line(windowWidth / 2, offsetY, windowWidth / 2, offsetY + totalHeight);
+            line(0, offsetY + totalHeight / 2, windowWidth, offsetY + totalHeight / 2);
+        }
 
         // Draw label
         noStroke();
