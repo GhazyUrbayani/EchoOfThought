@@ -621,9 +621,9 @@ class EchoOfThoughtGame {
     }
 
     getProgressLabel() {
-        if (!this.currentNodeId) return "EP";
-        const match = this.currentNodeId.match(/EP(\\d+)/);
-        const ep = match ? `EP${match[1]}` : "EP";
+        if (!this.currentNodeId) return "EPISODE 1 · Pilih dengan tatapan";
+        const match = this.currentNodeId.match(/EP(\d+)/);
+        const ep = match ? `EPISODE ${match[1]}` : "EPISODE 1";
         return `${ep} · Pilih dengan tatapan`;
     }
 
