@@ -31,7 +31,107 @@ class EchoOfThoughtGame {
         this.notifications = [];
         this.notificationDuration = 180; // 3 seconds at 60fps
         
+        // UI Animation particles
+        this.particles = [];
+        this.initParticles();
+        
         console.log("EchoOfThoughtGame initialized. Story engine:", this.storyEngine ? "OK" : "NOT FOUND");
+    }
+
+    initParticles() {
+        // Create floating particles for UI decoration
+        for (let i = 0; i < 50; i++) {
+            this.particles.push({
+                x: random(windowWidth),
+                y: random(windowHeight),
+                size: random(1, 4),
+                speedX: random(-0.5, 0.5),
+                speedY: random(-1, -0.2),
+                opacity: random(50, 150),
+                color: random() > 0.5 ? [56, 208, 229] : [150, 160, 180]
+            });
+        }
+    }
+
+    updateParticles() {
+        // Update and draw floating particles
+        for (let particle of this.particles) {
+            particle.x += particle.speedX;
+            particle.y += particle.speedY;
+            
+            // Wrap around screen
+            if (particle.y < 0) particle.y = height;
+            if (particle.x < 0) particle.x = width;
+            if (particle.x > width) particle.x = 0;
+            
+            // Draw particle with glow
+            noStroke();
+            fill(particle.color[0], particle.color[1], particle.color[2], particle.opacity);
+            circle(particle.x, particle.y, particle.size);
+        }
+    }
+
+    drawScanlines() {
+        // Cyberpunk scanline effect
+        stroke(56, 208, 229, 5);
+        strokeWeight(1);
+        for (let i = 0; i < height; i += 4) {
+            line(0, i + (frameCount % 4), width, i + (frameCount % 4));
+        }
+    }
+
+    drawAnimatedGrid() {
+        // Animated grid overlay
+        stroke(56, 208, 229, 15);
+        strokeWeight(1);
+        
+        const gridSize = 50;
+        const offset = frameCount * 0.5;
+        
+        // Vertical lines
+        for (let x = -gridSize; x < width + gridSize; x += gridSize) {
+            line(x + (offset % gridSize), 0, x + (offset % gridSize), height);
+        }
+        
+        // Horizontal lines  
+        for (let y = -gridSize; y < height + gridSize; y += gridSize) {
+            line(0, y + (offset % gridSize), width, y + (offset % gridSize));
+        }
+    }
+
+    drawCornerAccents() {
+        // Cyberpunk corner decorations
+        stroke(56, 208, 229, 200);
+        strokeWeight(2);
+        noFill();
+        
+        const size = 40;
+        const offset = 20;
+        
+        // Top-left
+        line(offset, offset, offset + size, offset);
+        line(offset, offset, offset, offset + size);
+        
+        // Top-right
+        line(width - offset, offset, width - offset - size, offset);
+        line(width - offset, offset, width - offset, offset + size);
+        
+        // Bottom-left
+        line(offset, height - offset, offset + size, height - offset);
+        line(offset, height - offset, offset, height - offset - size);
+        
+        // Bottom-right
+        line(width - offset, height - offset, width - offset - size, height - offset);
+        line(width - offset, height - offset, width - offset, height - offset - size);
+        
+        // Pulsing dots at corners
+        const pulseSize = 3 + 2 * sin(frameCount * 0.1);
+        fill(56, 208, 229, 200);
+        noStroke();
+        circle(offset, offset, pulseSize);
+        circle(width - offset, offset, pulseSize);
+        circle(offset, height - offset, pulseSize);
+        circle(width - offset, height - offset, pulseSize);
     }
 
     setup() {
@@ -104,6 +204,9 @@ class EchoOfThoughtGame {
             // Fallback solid background
             background(16, 22, 34);
         }
+        
+        // Draw floating particles
+        this.updateParticles();
         
         // Force font on every frame
         textFont('Press Start 2P');
@@ -191,6 +294,15 @@ class EchoOfThoughtGame {
         const isHovering = mouseX > btnX && mouseX < btnX + btnWidth && 
                           mouseY > btnY && mouseY < btnY + btnHeight;
 
+        // Pulsing glow effect
+        const pulseAlpha = 150 + 105 * sin(frameCount * 0.05);
+        
+        // Button glow (outer)
+        if (isHovering) {
+            drawingContext.shadowBlur = 30;
+            drawingContext.shadowColor = `rgba(56, 208, 229, ${pulseAlpha / 255})`;
+        }
+        
         // Button background
         if (isHovering) {
             fill(56, 208, 229, 30);
@@ -198,10 +310,12 @@ class EchoOfThoughtGame {
             strokeWeight(3);
         } else {
             noFill();
-            stroke(56, 208, 229);
+            stroke(56, 208, 229, pulseAlpha);
             strokeWeight(2);
         }
         rect(btnX, btnY, btnWidth, btnHeight, 0);
+        
+        drawingContext.shadowBlur = 0;
 
         // Button text
         noStroke();
@@ -219,6 +333,9 @@ class EchoOfThoughtGame {
         textSize(10);
         text("Game by rudal ares", width / 2, height - 40);
 
+        // Corner accents
+        this.drawCornerAccents();
+
         // Animated dots
         const dots = ".".repeat((frameCount / 30) % 4);
         fill(56, 208, 229, 150);
@@ -233,14 +350,17 @@ class EchoOfThoughtGame {
         fill(16, 22, 34, 200);
         rect(0, 0, width, height);
 
-        // Loading text
+        // Loading text with glow
         textAlign(CENTER, CENTER);
         textFont('Press Start 2P');
         noStroke();
         
+        drawingContext.shadowBlur = 15;
+        drawingContext.shadowColor = 'rgba(56, 208, 229, 0.6)';
         fill(56, 208, 229);
         textSize(22);
         text("Memulai WebGazer AI", width / 2, height / 2 - 30);
+        drawingContext.shadowBlur = 0;
 
         // Animated loading dots
         const dots = ".".repeat((frameCount / 20) % 4);
@@ -248,15 +368,36 @@ class EchoOfThoughtGame {
         textSize(18);
         text("Harap tunggu" + dots, width / 2, height / 2 + 20);
 
-        // Loading spinner
+        // Animated loading spinner with glow
         push();
         translate(width / 2, height / 2 + 80);
         rotate(frameCount * 0.05);
         noFill();
+        
+        // Outer glow
+        drawingContext.shadowBlur = 20;
+        drawingContext.shadowColor = 'rgba(56, 208, 229, 0.8)';
         stroke(56, 208, 229);
         strokeWeight(3);
         arc(0, 0, 60, 60, 0, PI * 1.5);
+        
+        // Inner arc
+        strokeWeight(2);
+        stroke(150, 200, 255);
+        arc(0, 0, 40, 40, PI, PI * 2.5);
+        
+        drawingContext.shadowBlur = 0;
         pop();
+        
+        // Orbiting particles around spinner
+        for (let i = 0; i < 5; i++) {
+            const angle = frameCount * 0.03 + i * (TWO_PI / 5);
+            const x = width / 2 + cos(angle) * 50;
+            const y = height / 2 + 80 + sin(angle) * 50;
+            fill(56, 208, 229, 150);
+            noStroke();
+            circle(x, y, 4);
+        }
     }
 
     drawReadingScene() {
