@@ -10,6 +10,9 @@ class EchoOfThoughtGame {
         this.orbs = [];
         this.isInitialized = false;
 
+        // Background image
+        this.bgImage = null;
+
         // Story engine integration
         if (!window.EchoStory) {
             console.error("EchoStory not found! Make sure app.js is loaded before this script.");
@@ -35,6 +38,9 @@ class EchoOfThoughtGame {
         // Create canvas
         let canvas = createCanvas(windowWidth, windowHeight);
         canvas.parent('main');
+        
+        // Background image will be passed from main.js preload
+        // this.bgImage is set externally
         
         // Force font settings
         textAlign(CENTER, CENTER);
@@ -65,7 +71,39 @@ class EchoOfThoughtGame {
     }
 
     draw() {
-        background(16, 22, 34);
+        // Draw background image if loaded
+        if (this.bgImage) {
+            push();
+            imageMode(CORNER);
+            // Cover the entire canvas
+            let imgAspect = this.bgImage.width / this.bgImage.height;
+            let canvasAspect = width / height;
+            let drawWidth, drawHeight, drawX, drawY;
+            
+            if (canvasAspect > imgAspect) {
+                // Canvas is wider
+                drawWidth = width;
+                drawHeight = width / imgAspect;
+                drawX = 0;
+                drawY = (height - drawHeight) / 2;
+            } else {
+                // Canvas is taller
+                drawHeight = height;
+                drawWidth = height * imgAspect;
+                drawX = (width - drawWidth) / 2;
+                drawY = 0;
+            }
+            
+            image(this.bgImage, drawX, drawY, drawWidth, drawHeight);
+            
+            // Dark overlay for better text readability
+            fill(16, 22, 34, 180);
+            rect(0, 0, width, height);
+            pop();
+        } else {
+            // Fallback solid background
+            background(16, 22, 34);
+        }
         
         // Force font on every frame
         textFont('Press Start 2P');
@@ -119,53 +157,10 @@ class EchoOfThoughtGame {
     }
 
     drawMenuScene() {
-        // Background base
-        background(16, 22, 34);
-
-        // School building silhouette
-        noStroke();
-        fill(10, 15, 25, 200);
+        // Background is already drawn in draw() method
         
-        // Main building
-        rect(0, height * 0.4, width, height * 0.6);
-        
-        // Building details - windows pattern
-        fill(56, 208, 229, 30);
-        const windowSize = 15;
-        const windowSpacing = 35;
-        for (let x = 30; x < width - 30; x += windowSpacing) {
-            for (let y = height * 0.45; y < height * 0.85; y += windowSpacing) {
-                // Random window lights
-                if (random() > 0.3) {
-                    fill(56, 208, 229, random(20, 60));
-                    rect(x, y, windowSize, windowSize * 1.5);
-                }
-            }
-        }
-
-        // Cyber grid overlay
-        stroke(56, 208, 229, 20);
-        strokeWeight(1);
-        // Vertical lines
-        for (let x = 0; x < width; x += 50) {
-            line(x, 0, x, height);
-        }
-        // Horizontal lines
-        for (let y = 0; y < height; y += 50) {
-            line(0, y, width, y);
-        }
-
-        // Floating particles effect
-        noStroke();
-        for (let i = 0; i < 30; i++) {
-            const x = (frameCount * 0.5 + i * 100) % width;
-            const y = (noise(i, frameCount * 0.005) * height);
-            fill(56, 208, 229, 50);
-            circle(x, y, 3);
-        }
-
-        // Dark overlay for text readability
-        fill(16, 22, 34, 150);
+        // Lighter overlay for menu
+        fill(16, 22, 34, 120);
         rect(0, 0, width, height);
 
         // Title
@@ -237,8 +232,11 @@ class EchoOfThoughtGame {
     }
 
     drawLoadingScene() {
-        // Background
-        background(16, 22, 34);
+        // Background is already drawn in draw() method
+        
+        // Dark overlay
+        fill(16, 22, 34, 200);
+        rect(0, 0, width, height);
 
         // Loading text
         textAlign(CENTER, CENTER);

@@ -5,11 +5,29 @@
 
 // Global game instance
 let game;
+let bgImage;
+
+// p5.js preload function - loads assets before setup
+function preload() {
+    // Try to load background image (supports GIF, JPG, PNG)
+    bgImage = loadImage('school-bg.gif', 
+        () => console.log('✓ Background image loaded (GIF)'),
+        () => {
+            console.warn('⚠ Failed to load school-bg.gif, using fallback...');
+            bgImage = null;
+        }
+    );
+}
 
 // p5.js setup function
 function setup() {
     game = new EchoOfThoughtGame();
     game.setup();
+    
+    // Pass background image to game
+    if (bgImage) {
+        game.bgImage = bgImage;
+    }
 }
 
 // p5.js draw function
