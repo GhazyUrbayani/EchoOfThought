@@ -71,7 +71,7 @@ class EchoOfThoughtGame {
         textFont('Press Start 2P');
 
         // Process video feed if game has started
-        if (!this.stateManager.isState('START')) {
+        if (!this.stateManager.isState('MENU') && !this.stateManager.isState('START')) {
             this.webgazerManager.processVideoFeed();
         }
 
@@ -80,6 +80,12 @@ class EchoOfThoughtGame {
 
         // Render current state
         switch (this.stateManager.getState()) {
+            case 'MENU':
+                this.drawMenuScene();
+                break;
+            case 'START':
+                this.drawLoadingScene();
+                break;
             case 'CALIBRATING':
                 this.drawCalibrationScene();
                 break;
@@ -97,8 +103,10 @@ class EchoOfThoughtGame {
                 break;
         }
 
-        // Draw gaze indicator
-        this.drawGazeIndicator();
+        // Draw gaze indicator (not in menu or loading)
+        if (!this.stateManager.isState('MENU') && !this.stateManager.isState('START')) {
+            this.drawGazeIndicator();
+        }
         
         // Draw character status notifications
         this.drawNotifications();
@@ -108,6 +116,154 @@ class EchoOfThoughtGame {
         if (this.calibrationManager) {
             this.calibrationManager.draw();
         }
+    }
+
+    drawMenuScene() {
+        // Background base
+        background(16, 22, 34);
+
+        // School building silhouette
+        noStroke();
+        fill(10, 15, 25, 200);
+        
+        // Main building
+        rect(0, height * 0.4, width, height * 0.6);
+        
+        // Building details - windows pattern
+        fill(56, 208, 229, 30);
+        const windowSize = 15;
+        const windowSpacing = 35;
+        for (let x = 30; x < width - 30; x += windowSpacing) {
+            for (let y = height * 0.45; y < height * 0.85; y += windowSpacing) {
+                // Random window lights
+                if (random() > 0.3) {
+                    fill(56, 208, 229, random(20, 60));
+                    rect(x, y, windowSize, windowSize * 1.5);
+                }
+            }
+        }
+
+        // Cyber grid overlay
+        stroke(56, 208, 229, 20);
+        strokeWeight(1);
+        // Vertical lines
+        for (let x = 0; x < width; x += 50) {
+            line(x, 0, x, height);
+        }
+        // Horizontal lines
+        for (let y = 0; y < height; y += 50) {
+            line(0, y, width, y);
+        }
+
+        // Floating particles effect
+        noStroke();
+        for (let i = 0; i < 30; i++) {
+            const x = (frameCount * 0.5 + i * 100) % width;
+            const y = (noise(i, frameCount * 0.005) * height);
+            fill(56, 208, 229, 50);
+            circle(x, y, 3);
+        }
+
+        // Dark overlay for text readability
+        fill(16, 22, 34, 150);
+        rect(0, 0, width, height);
+
+        // Title
+        textAlign(CENTER, CENTER);
+        textFont('Press Start 2P');
+        noStroke();
+        
+        // Shadow effect for title
+        fill(0, 0, 0, 100);
+        textSize(48);
+        text("ECHO OF THOUGHT", width / 2 + 4, height / 2 - 154);
+        
+        // Main title with glow effect
+        drawingContext.shadowBlur = 20;
+        drawingContext.shadowColor = 'rgba(56, 208, 229, 0.8)';
+        fill(56, 208, 229);
+        textSize(48);
+        text("ECHO OF THOUGHT", width / 2, height / 2 - 150);
+        drawingContext.shadowBlur = 0;
+
+        // Subtitle
+        fill(150, 160, 180);
+        textSize(16);
+        text("Pilih dengan tatapan", width / 2, height / 2 - 80);
+
+        // Start button
+        const btnWidth = 400;
+        const btnHeight = 70;
+        const btnX = width / 2 - btnWidth / 2;
+        const btnY = height / 2 - 10;
+
+        // Check if mouse is hovering
+        const isHovering = mouseX > btnX && mouseX < btnX + btnWidth && 
+                          mouseY > btnY && mouseY < btnY + btnHeight;
+
+        // Button background
+        if (isHovering) {
+            fill(56, 208, 229, 30);
+            stroke(56, 208, 229);
+            strokeWeight(3);
+        } else {
+            noFill();
+            stroke(56, 208, 229);
+            strokeWeight(2);
+        }
+        rect(btnX, btnY, btnWidth, btnHeight, 0);
+
+        // Button text
+        noStroke();
+        fill(isHovering ? 255 : 56, isHovering ? 255 : 208, isHovering ? 255 : 229);
+        textSize(22);
+        text("START GAME", width / 2, btnY + btnHeight / 2);
+
+        // Instructions
+        fill(100, 110, 130);
+        textSize(12);
+        text("Klik untuk memulai", width / 2, height / 2 + 100);
+
+        // Credits
+        fill(70, 80, 100);
+        textSize(10);
+        text("Game by rudal ares", width / 2, height - 40);
+
+        // Animated dots
+        const dots = ".".repeat((frameCount / 30) % 4);
+        fill(56, 208, 229, 150);
+        textSize(14);
+        text(dots, width / 2 + 200, height / 2 - 80);
+    }
+
+    drawLoadingScene() {
+        // Background
+        background(16, 22, 34);
+
+        // Loading text
+        textAlign(CENTER, CENTER);
+        textFont('Press Start 2P');
+        noStroke();
+        
+        fill(56, 208, 229);
+        textSize(22);
+        text("Memulai WebGazer AI", width / 2, height / 2 - 30);
+
+        // Animated loading dots
+        const dots = ".".repeat((frameCount / 20) % 4);
+        fill(150, 160, 180);
+        textSize(18);
+        text("Harap tunggu" + dots, width / 2, height / 2 + 20);
+
+        // Loading spinner
+        push();
+        translate(width / 2, height / 2 + 80);
+        rotate(frameCount * 0.05);
+        noFill();
+        stroke(56, 208, 229);
+        strokeWeight(3);
+        arc(0, 0, 60, 60, 0, PI * 1.5);
+        pop();
     }
 
     drawReadingScene() {
@@ -783,6 +939,56 @@ class EchoOfThoughtGame {
         if (value >= -20) return [200, 200, 200]; // Gray
         if (value >= -50) return [255, 200, 100]; // Orange
         return [255, 100, 100]; // Red
+    }
+
+    handleMouseClick() {
+        if (this.stateManager.isState('MENU')) {
+            // Check if clicked on start button
+            const btnWidth = 400;
+            const btnHeight = 70;
+            const btnX = windowWidth / 2 - btnWidth / 2;
+            const btnY = windowHeight / 2 - 10;
+
+            if (mouseX > btnX && mouseX < btnX + btnWidth && 
+                mouseY > btnY && mouseY < btnY + btnHeight) {
+                // Start the game - request webcam permission
+                this.requestCameraPermission();
+            }
+        }
+    }
+
+    async requestCameraPermission() {
+        try {
+            // Show loading state
+            this.stateManager.setState('START');
+            
+            // Initialize WebGazer
+            const success = await this.webgazerManager.initialize();
+            
+            if (success) {
+                // Start calibration after a short delay
+                setTimeout(() => {
+                    this.stateManager.setState('CALIBRATING');
+                }, 1000);
+            } else {
+                // Show permission modal on error
+                const modal = document.getElementById('permission-modal');
+                if (modal) {
+                    modal.style.display = 'flex';
+                }
+                // Return to menu
+                this.stateManager.setState('MENU');
+            }
+        } catch (error) {
+            console.error("Camera permission error:", error);
+            // Show permission modal on error
+            const modal = document.getElementById('permission-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+            // Return to menu
+            this.stateManager.setState('MENU');
+        }
     }
 }
 

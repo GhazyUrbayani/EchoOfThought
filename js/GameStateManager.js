@@ -4,6 +4,7 @@
 class GameStateManager {
     constructor() {
         this.states = {
+            MENU: 'MENU',
             START: 'START',
             CALIBRATING: 'CALIBRATING',
             READING: 'READING',
@@ -11,7 +12,7 @@ class GameStateManager {
             FINAL: 'FINAL',
             ENDGAME: 'ENDGAME'
         };
-        this.currentState = this.states.START;
+        this.currentState = this.states.MENU;
         this.selectedChoice = "";
         this.readingTimer = 0;
         this.readingDuration = 180; // 3 seconds at 60fps

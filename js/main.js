@@ -22,7 +22,14 @@ function draw() {
 // p5.js mouse pressed event
 function mousePressed() {
     if (game) {
-        game.handleMousePress();
+        // Handle menu click
+        if (game.handleMouseClick) {
+            game.handleMouseClick();
+        }
+        // Handle original mouse press
+        if (game.handleMousePress) {
+            game.handleMousePress();
+        }
     }
 }
 
