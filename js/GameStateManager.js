@@ -6,11 +6,15 @@ class GameStateManager {
         this.states = {
             START: 'START',
             CALIBRATING: 'CALIBRATING',
+            READING: 'READING',
             CHOICE: 'CHOICE',
-            FINAL: 'FINAL'
+            FINAL: 'FINAL',
+            ENDGAME: 'ENDGAME'
         };
         this.currentState = this.states.START;
         this.selectedChoice = "";
+        this.readingTimer = 0;
+        this.readingDuration = 180; // 3 seconds at 60fps
     }
 
     setState(state) {
@@ -33,6 +37,19 @@ class GameStateManager {
 
     getSelectedChoice() {
         return this.selectedChoice;
+    }
+
+    startReading() {
+        this.readingTimer = 0;
+    }
+
+    updateReading() {
+        this.readingTimer++;
+        return this.readingTimer >= this.readingDuration;
+    }
+
+    getReadingProgress() {
+        return this.readingTimer / this.readingDuration;
     }
 }
 

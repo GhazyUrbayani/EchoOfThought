@@ -11,6 +11,9 @@ class EchoOfThoughtGame {
         this.isInitialized = false;
 
         // Story engine integration
+        if (!window.EchoStory) {
+            console.error("EchoStory not found! Make sure app.js is loaded before this script.");
+        }
         this.storyState = window.EchoStory ? new window.EchoStory.GameState() : null;
         this.storyEngine = window.EchoStory ? new window.EchoStory.StoryEngine({ gameState: this.storyState }) : null;
         this.storyChoices = [];
@@ -18,6 +21,10 @@ class EchoOfThoughtGame {
         this.storyLoading = false;
         this.storyStarted = false;
         this.currentNodeId = "BEGIN";
+        this.choicesMade = 0;
+        this.endgameData = null;
+        
+        console.log("EchoOfThoughtGame initialized. Story engine:", this.storyEngine ? "OK" : "NOT FOUND");
     }
 
     setup() {
@@ -72,11 +79,17 @@ class EchoOfThoughtGame {
             case 'CALIBRATING':
                 this.drawCalibrationScene();
                 break;
+            case 'READING':
+                this.drawReadingScene();
+                break;
             case 'CHOICE':
                 this.drawChoiceScene();
                 break;
             case 'FINAL':
                 this.drawFinalScene();
+                break;
+            case 'ENDGAME':
+                this.drawEndgameScene();
                 break;
         }
 
@@ -88,6 +101,82 @@ class EchoOfThoughtGame {
         if (this.calibrationManager) {
             this.calibrationManager.draw();
         }
+    }
+
+    drawReadingScene() {
+        // Update reading timer
+        const finished = this.stateManager.updateReading();
+        if (finished) {
+            this.stateManager.setState('CHOICE');
+            return;
+        }
+
+        const progress = this.stateManager.getReadingProgress();
+        
+        // Layout - increase height for better text display
+        const storyPanelHeight = Math.min(400, windowHeight * 0.45);
+        const storyPanelY = 20;
+        const boxWidth = Math.min(windowWidth - 120, 1080);
+        const boxHeight = storyPanelHeight;
+        const boxX = windowWidth / 2 - boxWidth / 2;
+        const boxY = storyPanelY;
+
+        // Back panel
+        noStroke();
+        fill(10, 18, 32, 230);
+        rect(boxX - 4, boxY - 4, boxWidth + 8, boxHeight + 8, 0);
+
+        // Inner panel
+        fill(16, 22, 34);
+        rect(boxX, boxY, boxWidth, boxHeight, 0);
+
+        // Accent bar (top)
+        fill(56, 208, 229);
+        rect(boxX, boxY, boxWidth, 4, 0);
+
+        // Header
+        textAlign(CENTER, TOP);
+        textFont('Press Start 2P');
+        textSize(14);
+        fill(56, 208, 229);
+        const headerText = this.getProgressLabel();
+        text(headerText, windowWidth / 2, boxY + 12);
+
+        // Story text - adjusted area to fit progress bar
+        textAlign(LEFT, TOP);
+        textSize(18);
+        textLeading(30);
+        if (drawingContext) {
+            drawingContext.font = "18px 'Press Start 2P'";
+            textWrap(WORD);
+        }
+        fill(242, 242, 242);
+        // Reserve 70px for progress bar and "Membaca..." text
+        const textAreaHeight = boxHeight - 110;
+        text(this.storyText || "Memuat cerita...", boxX + 14, boxY + 40, boxWidth - 28, textAreaHeight);
+
+        // Reading progress bar at bottom
+        const barWidth = boxWidth - 28;
+        const barHeight = 6;
+        const barX = boxX + 14;
+        const barY = boxY + boxHeight - 50;
+        
+        // Bar background
+        fill(30, 40, 60);
+        rect(barX, barY, barWidth, barHeight);
+        
+        // Bar fill
+        fill(56, 208, 229);
+        rect(barX, barY, barWidth * progress, barHeight);
+        
+        // Reading indicator text
+        textAlign(CENTER, TOP);
+        textSize(12);
+        fill(56, 208, 229, 150 + 105 * sin(frameCount * 0.1));
+        text("Membaca...", windowWidth / 2, barY + 12);
+        
+        // Restore font
+        textFont("Press Start 2P");
     }
 
     drawChoiceScene() {
@@ -103,13 +192,15 @@ class EchoOfThoughtGame {
         const playAreaY = storyPanelY + storyPanelHeight + 12;
         const playAreaHeight = Math.max(200, windowHeight - playAreaY);
 
-        // Update all orbs
+        // Update all orbs ONLY if not loading and have valid choices
         const activeChoices = this.storyChoices.filter(c => c && c.text).length;
-        this.orbs.forEach(orb => {
-            orb.checkGaze(gaze.x, gaze.y, windowWidth, playAreaHeight, playAreaY, playAreaHeight, activeChoices);
-            orb.update();
-            orb.draw(windowWidth, windowHeight, playAreaY, playAreaHeight, activeChoices);
-        });
+        if (!this.storyLoading && activeChoices > 0) {
+            this.orbs.forEach(orb => {
+                orb.checkGaze(gaze.x, gaze.y, windowWidth, playAreaHeight, playAreaY, playAreaHeight, activeChoices);
+                orb.update();
+                orb.draw(windowWidth, windowHeight, playAreaY, playAreaHeight, activeChoices);
+            });
+        }
 
         // Draw instruction / story box
         const boxWidth = Math.min(windowWidth - 120, 1080);
@@ -165,12 +256,15 @@ class EchoOfThoughtGame {
         // Restore font
         textFont("Press Start 2P");
 
-        // Check for selection
-        this.orbs.forEach((orb, idx) => {
-            if (orb.isSelected()) {
-                this.handleStoryChoice(idx);
-            }
-        });
+        // Check for selection - only if we have valid choices
+        const validChoices = this.storyChoices.filter(c => c && c.text);
+        if (validChoices.length > 0) {
+            this.orbs.forEach((orb, idx) => {
+                if (orb.isSelected() && idx < validChoices.length) {
+                    this.handleStoryChoice(idx);
+                }
+            });
+        }
     }
 
     drawFinalScene() {
@@ -260,18 +354,38 @@ class EchoOfThoughtGame {
     }
 
     async loadStoryNode(nodeId) {
-        if (!this.storyEngine) return;
+        if (!this.storyEngine) {
+            console.error("Story engine not initialized");
+            return;
+        }
+        
         this.storyLoading = true;
         try {
             const payload = await this.storyEngine.requestStoryBeat(nodeId);
+            
+            if (!payload || !payload.response) {
+                throw new Error("Invalid story payload received");
+            }
+            
             this.storyText = payload.response;
             this.storyChoices = this.storyEngine.currentChoices || [];
             this.currentNodeId = payload.id || nodeId;
-            this.applyChoicesToOrbs();
+            
+            // Check if this is ending node BEFORE applying to orbs
+            if (this.currentNodeId && this.currentNodeId.startsWith('END_')) {
+                this.prepareEndgame();
+                this.stateManager.setState('ENDGAME');
+            } else {
+                this.applyChoicesToOrbs();
+                // Enter reading state for normal nodes
+                this.stateManager.setState('READING');
+                this.stateManager.startReading();
+            }
         } catch (error) {
             console.error("Story load error:", error);
             this.storyText = "Echo tidak dapat memuat cerita. Coba lagi.";
             this.storyChoices = [];
+            // Don't change state on error, stay in current state
         } finally {
             this.storyLoading = false;
         }
@@ -294,13 +408,34 @@ class EchoOfThoughtGame {
     }
 
     async handleStoryChoice(index) {
-        if (this.storyLoading || !this.storyChoices[index]) return;
+        // Prevent multiple simultaneous choice selections
+        if (this.storyLoading) {
+            console.log("Story is loading, ignoring choice");
+            return;
+        }
+        
+        // Validate choice exists
+        if (!this.storyChoices || !this.storyChoices[index]) {
+            console.log("Invalid choice index:", index);
+            return;
+        }
+        
         const choiceObj = this.storyChoices[index];
-        if (choiceObj.delta) {
+        
+        // Apply delta if exists
+        if (choiceObj.delta && this.storyState) {
             this.storyState.applyDelta(choiceObj.delta);
         }
-        this.storyState.rememberChoice(choiceObj.text);
+        
+        // Remember choice
+        if (this.storyState) {
+            this.storyState.rememberChoice(choiceObj.text);
+        }
+        
+        this.choicesMade++;
         this.orbs.forEach(orb => orb.reset());
+        
+        // Load next node
         await this.loadStoryNode(choiceObj.nextId || "BEGIN");
     }
 
@@ -309,6 +444,164 @@ class EchoOfThoughtGame {
         const match = this.currentNodeId.match(/EP(\\d+)/);
         const ep = match ? `EP${match[1]}` : "EP";
         return `${ep} · Pilih dengan tatapan`;
+    }
+
+    prepareEndgame() {
+        // Reset all orbs to prevent any selection
+        this.orbs.forEach(orb => {
+            orb.reset();
+            orb.visible = false;
+        });
+        
+        const relationships = this.storyState ? this.storyState.getRelationships() : {
+            nara: 0,
+            dimas: 0,
+            salsa: 0,
+            echo: 0
+        };
+        const choices = this.storyState ? this.storyState.choiceHistory : [];
+        
+        // Get ending name from node ID
+        let endingName = "AKHIR CERITA";
+        if (this.currentNodeId) {
+            endingName = this.currentNodeId.replace('END_', '').replace(/_/g, ' ');
+        }
+        
+        this.endgameData = {
+            ending: this.currentNodeId || "END_UNKNOWN",
+            endingName: endingName,
+            endingText: this.storyText || "Terima kasih telah bermain.",
+            choiceCount: this.choicesMade,
+            relationships: relationships,
+            choiceHistory: choices
+        };
+        
+        console.log("Endgame prepared:", this.endgameData);
+    }
+
+    drawEndgameScene() {
+        if (!this.endgameData) {
+            console.error("No endgame data available");
+            // Show error message
+            textAlign(CENTER, CENTER);
+            textFont('Press Start 2P');
+            textSize(16);
+            fill(255, 100, 100);
+            text("Error: Endgame data tidak tersedia", windowWidth / 2, windowHeight / 2);
+            textSize(12);
+            fill(200, 200, 200);
+            text("Tekan SPASI untuk restart", windowWidth / 2, windowHeight / 2 + 40);
+            return;
+        }
+        
+        const boxWidth = Math.min(windowWidth - 80, 900);
+        const boxX = windowWidth / 2 - boxWidth / 2;
+        let currentY = 60;
+
+        // Title
+        textAlign(CENTER, TOP);
+        textFont('Press Start 2P');
+        textSize(28);
+        fill(56, 208, 229);
+        text("TAMAT", windowWidth / 2, currentY);
+        currentY += 60;
+
+        // Ending name
+        textSize(16);
+        fill(242, 242, 242);
+        text(this.endgameData.endingName || "AKHIR CERITA", windowWidth / 2, currentY);
+        currentY += 50;
+
+        // Ending text box
+        const textBoxHeight = 180;
+        noStroke();
+        fill(10, 18, 32, 230);
+        rect(boxX - 4, currentY - 4, boxWidth + 8, textBoxHeight + 8, 0);
+        fill(16, 22, 34);
+        rect(boxX, currentY, boxWidth, textBoxHeight, 0);
+        fill(56, 208, 229);
+        rect(boxX, currentY, boxWidth, 4, 0);
+
+        textAlign(LEFT, TOP);
+        textSize(14);
+        textLeading(24);
+        fill(242, 242, 242);
+        if (drawingContext) {
+            drawingContext.font = "14px 'Press Start 2P'";
+            textWrap(WORD);
+        }
+        text(this.endgameData.endingText, boxX + 14, currentY + 14, boxWidth - 28, textBoxHeight - 28);
+        currentY += textBoxHeight + 40;
+
+        // Statistics
+        textAlign(CENTER, TOP);
+        textSize(14);
+        fill(56, 208, 229);
+        text("STATISTIK", windowWidth / 2, currentY);
+        currentY += 35;
+
+        // Choices made
+        textSize(12);
+        fill(200, 200, 200);
+        text(`Pilihan dibuat: ${this.endgameData.choiceCount}`, windowWidth / 2, currentY);
+        currentY += 30;
+
+        // Relationships
+        if (this.endgameData.relationships) {
+            const rels = this.endgameData.relationships;
+            const names = ['Nara', 'Dimas', 'Salsa', 'Echo'];
+            const keys = ['nara', 'dimas', 'salsa', 'echo'];
+            
+            textAlign(LEFT, TOP);
+            const relBoxWidth = boxWidth - 40;
+            const relBoxX = windowWidth / 2 - relBoxWidth / 2;
+            
+            keys.forEach((key, idx) => {
+                const value = rels[key] || 0;
+                const barColor = this.getRelationshipColor(value);
+                const normalizedValue = (value + 100) / 200; // -100 to 100 -> 0 to 1
+                
+                // Name
+                fill(242, 242, 242);
+                text(names[idx], relBoxX, currentY);
+                
+                // Bar background
+                fill(30, 40, 60);
+                const barWidth = relBoxWidth - 120;
+                const barX = relBoxX + 100;
+                rect(barX, currentY, barWidth, 16);
+                
+                // Bar fill
+                fill(barColor[0], barColor[1], barColor[2]);
+                rect(barX, currentY, barWidth * normalizedValue, 16);
+                
+                // Value
+                textAlign(RIGHT, TOP);
+                fill(barColor[0], barColor[1], barColor[2]);
+                text(value > 0 ? `+${value}` : `${value}`, relBoxX + relBoxWidth, currentY);
+                textAlign(LEFT, TOP);
+                
+                currentY += 28;
+            });
+        }
+
+        // Footer instruction
+        currentY = windowHeight - 60;
+        textAlign(CENTER, TOP);
+        textSize(11);
+        fill(56, 208, 229, 150 + 105 * sin(frameCount * 0.08));
+        text("Tekan SPASI untuk main lagi", windowWidth / 2, currentY);
+        
+        // Restore defaults
+        textFont("Press Start 2P");
+    }
+
+    getRelationshipColor(value) {
+        if (value >= 50) return [100, 255, 150]; // Green
+        if (value >= 20) return [150, 200, 255]; // Light blue
+        if (value >= -20) return [200, 200, 200]; // Gray
+        if (value >= -50) return [255, 200, 100]; // Orange
+        return [255, 100, 100]; // Red
     }
 }
 

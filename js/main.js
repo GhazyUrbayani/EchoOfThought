@@ -33,6 +33,15 @@ function windowResized() {
     }
 }
 
+// p5.js key pressed event - for restarting from endgame
+function keyPressed() {
+    if (game && game.stateManager.isState('ENDGAME')) {
+        if (key === ' ' || keyCode === 32) {
+            window.location.reload();
+        }
+    }
+}
+
 // Permission modal handler
 async function startExperience() {
     const button = document.getElementById('permission-button');
