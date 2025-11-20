@@ -6,16 +6,16 @@
   const STORY_TREE = {
     // --- EPISODE 1: HARI PERTAMA ---
     BEGIN: {
-      text: "EPISODE 1: HARI PERTAMA\n\nGerbang SMA Harapan Bangsa menjulang tinggi, seolah menelan langit Jakarta yang abu-abu. Suara klakson dan tawa siswa lain berdengung di telingamu, tapi ada satu suara yang lebih jelas.\n\n'Jangan mencolok,' bisik Echo, suara di kepalamu yang selalu waspada. 'Jadilah biasa saja. Aman itu nyaman. Jangan biarkan mereka melihatmu yang sebenarnya.'\n\nKamu berdiri di ambang gerbang, seragam putih abu-abu masih kaku dan berbau toko.",
+      text: "EPISODE 1: HARI PERTAMA\n\nGerbang SMA Harapan Bangsa menjulang seperti rahang baja yang membelah langit Jakarta yang keruh. Bau tanah basah bercampur asap knalpot, dan di antara riuh tawa siswa ada satu suara yang paling tajam.\n\n'Jangan mencolok,' bisik Echo, suara di kepalamu yang sudah menemani bertahun-tahun. 'Jadilah biasa saja. Aman itu nyaman. Jangan biarkan mereka mengintip bagian dirimu yang rapuh.'\n\nKamu berdiri di ambang gerbang, seragam putih abu-abu masih kaku dan berbau toko, telapak tangan sedikit berkeringat.",
       choices: [
         { text: "Tarik napas dalam, paksa kaki melangkah.", nextId: "EP1_CORRIDOR", delta: { echo: 1 } },
         { text: "Tundukkan kepala, hindari tatapan siapa pun.", nextId: "EP1_CORRIDOR_SHY", delta: { echo: -1 } },
-        { text: "Pasang earphone, blokir dunia luar.", nextId: "EP1_CORRIDOR_ISOLATED", delta: { echo: -2 } },
-        { text: "Senyum tipis pada satpam, mencoba ramah.", nextId: "EP1_CORRIDOR_FRIENDLY", delta: { echo: 2 } }
+        { text: "Pasang earphone, tenggelamkan dunia luar.", nextId: "EP1_CORRIDOR_ISOLATED", delta: { echo: -2 } },
+        { text: "Senyum tipis pada satpam, paksa diri ramah.", nextId: "EP1_CORRIDOR_FRIENDLY", delta: { echo: 2 } }
       ]
     },
     EP1_CORRIDOR: {
-      text: "Kamu berjalan menyusuri koridor utama. Lantai keramik memantulkan bayangan siswa-siswa yang berlarian. Tiba-tiba, bahumu tertabrak keras. Buku-buku berjatuhan dengan suara 'brukk' yang nyaring.\n\nDi depanmu, seorang gadis dengan kacamata bulat besar tampak panik memunguti novel-novel tebalnya. Itu Nara. Dia bergumam, 'Aduh, mati gue, telat, telat...'",
+      text: "Koridor utama memantulkan bayanganmu di lantai keramik yang licin. Poster lomba dan jadwal piket menempel sembarangan di dinding. Sebelum sempat membaca, bahumu tertabrak keras. Buku-buku berjatuhan dengan suara 'brukk' yang memecah bising pagi.\n\nSeorang gadis berkacamata bulat panik memunguti novel-novel tebalnya. Nara. 'Aduh, mati gue, telat, telat...' gumamnya terburu-buru.",
       choices: [
         { text: "Berlutut dan bantu pungut bukunya.", nextId: "EP1_MEET_NARA", delta: { nara: 2, echo: 1 } },
         { text: "Gumamkan 'sorry' pelan dan lanjut jalan.", nextId: "EP1_IGNORE_NARA", delta: { nara: 0, echo: -1 } },
@@ -24,7 +24,7 @@
       ]
     },
     EP1_CORRIDOR_SHY: {
-      text: "Kamu berjalan cepat, mata terpaku pada sepatu. 'Bagus,' kata Echo. 'Tak ada yang memperhatikan.' Tiba-tiba—BRUK! Kamu menabrak seseorang. Buku berhamburan. Seorang gadis berkacamata (Nara) menatapmu kaget.",
+      text: "Kamu berjalan cepat, mata terpaku pada ujung sepatu. 'Bagus,' kata Echo. 'Tak ada yang memperhatikan.' Tiba-tiba, BRUK! Kamu menabrak seseorang. Buku-buku berhamburan. Seorang gadis berkacamata membeku menatapmu, terkejut dan terbata.",
       choices: [
         { text: "Bantu dia tanpa bicara.", nextId: "EP1_MEET_NARA", delta: { nara: 1, echo: 0 } },
         { text: "Lari ke kelas karena panik.", nextId: "EP1_IGNORE_NARA", delta: { nara: -1, echo: -2 } },
@@ -32,7 +32,7 @@
       ]
     },
     EP1_CORRIDOR_ISOLATED: {
-      text: "Musik di telingamu meredam dunia, tapi tidak getaran tabrakan itu. Kamu menabrak seorang gadis (Nara). Dia bicara sesuatu, tapi kamu tidak dengar karena earphone-mu.",
+      text: "Musik di telingamu meredam segala hal, tapi tidak getaran tabrakan itu. Bahumu menghantam seorang gadis (Nara). Bibirnya bergerak, tapi lirik lagu menutup maknanya.",
       choices: [
         { text: "Lepas earphone, tanya dia bicara apa.", nextId: "EP1_MEET_NARA", delta: { nara: 1, echo: 1 } },
         { text: "Abaikan, jalan terus.", nextId: "EP1_IGNORE_NARA", delta: { nara: -2, echo: -2 } },
@@ -40,7 +40,7 @@
       ]
     },
     EP1_CORRIDOR_FRIENDLY: {
-      text: "Satpam membalas senyummu. Sedikit rasa percaya diri tumbuh. Namun, di koridor, kamu tidak sengaja menyenggol seorang gadis (Nara). Buku-bukunya jatuh.",
+      text: "Satpam membalas senyummu. Percik percaya diri muncul. Di tikungan, kamu tak sengaja menyenggol seorang gadis (Nara). Buku-bukunya jatuh berserakan seperti confetti yang salah tempat.",
       choices: [
         { text: "Langsung bantu dengan sigap.", nextId: "EP1_MEET_NARA", delta: { nara: 3, echo: 2 } },
         { text: "Minta maaf sambil tersenyum.", nextId: "EP1_JOKE_NARA", delta: { nara: 2, echo: 1 } },
@@ -48,7 +48,7 @@
       ]
     },
     EP1_MEET_NARA: {
-      text: "'Makasih banget!' Nara tersenyum lebar, matanya menyipit di balik kacamata. 'Gue Nara. Sumpah, gue kira bakal dimarahin kakak kelas tadi.' Dia menepuk debu di roknya. 'Lo anak baru ya? Muka lo asing. Mau gue anter ke kelas?'\n\nEcho bergumam sinis: 'Terlalu ramah. Pasti ada maunya. Jangan terlalu dekat.'",
+      text: "'Makasih banget!' Nara tersenyum lebar, matanya menyipit di balik kacamata. 'Gue Nara. Sumpah, gue kira bakal dimarahin kakak kelas tadi.' Debu di roknya dia tepuk pelan, seolah merapikan juga rasa malunya. 'Lo anak baru ya? Muka lo asing. Mau gue anter ke kelas?'\n\nEcho bergumam sinis: 'Terlalu ramah. Pasti ada maunya. Jangan terlalu dekat.'",
       choices: [
         { text: "'Boleh, gue butuh bantuan.' (Terima)", nextId: "EP1_CLASS_WITH_NARA", delta: { nara: 2, echo: 1 } },
         { text: "'Gue bisa cari sendiri.' (Tolak)", nextId: "EP1_CLASS", delta: { nara: -1, echo: -1 } },
@@ -57,7 +57,7 @@
       ]
     },
     EP1_JOKE_NARA: {
-      text: "Nara tertawa renyah, suaranya memantul di koridor. 'Iya kan? Lantai sekolah ini emang konspirasi buat bikin murid jatuh!' Suasana cair seketika. Dia mengulurkan tangan. 'Gue Nara. Lo?'",
+      text: "Nara tertawa renyah, suaranya memantul di koridor seperti lonceng kecil. 'Iya kan? Lantai sekolah ini emang konspirasi buat bikin murid jatuh!' Suasana mencair. Dia mengulurkan tangan. 'Gue Nara. Lo?'",
       choices: [
         { text: "Sebut namamu dan jabat tangannya.", nextId: "EP1_CLASS_WITH_NARA", delta: { nara: 3, echo: 2 } },
         { text: "Sebut nama tanpa jabat tangan.", nextId: "EP1_CLASS_WITH_NARA", delta: { nara: 1, echo: 0 } },
@@ -65,21 +65,21 @@
       ]
     },
     EP1_IGNORE_NARA: {
-      text: "Kamu meninggalkan Nara yang masih membereskan bukunya. Ada rasa bersalah kecil, tapi Echo membenarkan: 'Lebih baik tidak terlibat.'\n\nKamu sampai di kelas XI-IPS 2. Suasana riuh. Kamu memilih bangku kosong di belakang.",
+      text: "Kamu meninggalkan Nara yang masih menyeimbangkan bukunya. Rasa bersalah menggelitik, tapi Echo membenarkan: 'Lebih baik tidak terlibat.'\n\nKamu tiba di kelas XI-IPS 2. Suasana riuh dari fans K-pop di pojok sampai geng basket di depan. Kamu memilih bangku kosong di belakang, mencoba larut jadi wallpaper.",
       choices: [
         { text: "Duduk dan amati sekitar.", nextId: "EP1_CLASS_OBSERVE", delta: { echo: 0 } },
         { text: "Keluarkan HP, pura-pura sibuk.", nextId: "EP1_CLASS_PHONE", delta: { echo: -1 } }
       ]
     },
     EP1_CLASS_WITH_NARA: {
-      text: "Kamu masuk kelas bersama Nara. Beberapa anak melirik. 'Duduk deket gue aja!' ajak Nara. Dia menunjuk bangku kosong di sebelahnya. Di depan kalian, ada Dimas yang sedang mencoret-coret buku sketsa, dan Salsa yang terlihat stres membaca buku paket tebal.",
+      text: "Kamu masuk kelas bersama Nara. Beberapa anak melirik ingin tahu. 'Duduk deket gue aja!' ajak Nara, menunjuk bangku kosong di sebelahnya. Di depan kalian, Dimas mencoret sketsa serupa mata yang seolah hidup, sementara Salsa terlihat stres menekuri buku paket tebal.",
       choices: [
         { text: "Duduk di sebelah Nara.", nextId: "EP1_CLASS_INTERACTION", delta: { nara: 1 } },
         { text: "Duduk di belakang Dimas.", nextId: "EP1_CLASS_INTERACTION", delta: { dimas: 1 } }
       ]
     },
     EP1_CLASS: {
-      text: "Kamu masuk kelas sendirian. Di depanmu, ada Dimas yang sedang menggambar dengan sangat fokus, seolah dunia di sekitarnya tidak ada. Di sebelahnya, Salsa sedang mengomel pelan pada kalkulatornya.",
+      text: "Kamu masuk kelas sendirian. Di baris tengah, Dimas menggambar dengan sangat fokus, seolah dunia di sekitarnya disilent. Di sebelahnya, Salsa mengomel pelan pada kalkulatornya seakan kalkulator itu makhluk hidup yang bandel.",
       choices: [
         { text: "Perhatikan gambar Dimas.", nextId: "EP1_INTERACT_DIMAS", delta: { dimas: 1 } },
         { text: "Tanya Salsa soal pelajaran.", nextId: "EP1_INTERACT_SALSA", delta: { salsa: 1 } },
@@ -87,20 +87,20 @@
       ]
     },
     EP1_CLASS_OBSERVE: {
-      text: "Dari belakang, kamu melihat dinamika kelas. Ada kelompok populer, ada yang tidur. Dimas, cowok di depanmu, menggambar sesuatu yang gelap dan rumit. Salsa, cewek di sebelahnya, terlihat perfeksionis, menghapus tulisannya berkali-kali sampai kertasnya nyaris sobek.",
+      text: "Dari belakang, kamu melihat dinamika kelas seperti panggung kecil. Ada kelompok populer, ada yang tidur dengan hoodie menutupi muka. Dimas, cowok di depanmu, menggambar sesuatu yang gelap dan rumit. Salsa, cewek di sebelahnya, perfeksionis sampai kertasnya nyaris sobek karena terus dihapus.",
       choices: [
         { text: "Tegur Dimas: 'Gambar apa?'", nextId: "EP1_INTERACT_DIMAS", delta: { dimas: 1, echo: 1 } },
         { text: "Diam saja.", nextId: "EP1_CLASS_END", delta: { echo: 0 } }
       ]
     },
     EP1_CLASS_PHONE: {
-      text: "Layar HP menyala, tapi kamu tidak benar-benar melihat isinya. Hanya scrolling tanpa tujuan untuk menghindari kontak mata. Echo puas: 'Begini lebih aman.'",
+      text: "Layar HP menyala, tapi kamu tidak benar-benar melihat isinya. Jempolmu scrolling kosong hanya demi menghindari kontak mata. Echo puas: 'Begini lebih aman.'",
       choices: [
         { text: "Tunggu bel.", nextId: "EP1_CLASS_END", delta: { echo: -1 } }
       ]
     },
     EP1_INTERACT_DIMAS: {
-      text: "Dimas tersentak kaget saat kamu mendekat. Dia buru-buru menutup buku sketsanya. 'Eh... nggak. Cuma coret-coret,' gumamnya pelan, matanya tidak berani menatapmu. Tapi sekilas kamu melihat gambar mata yang sangat realistis.",
+      text: "Dimas tersentak kaget saat kamu mendekat. Buku sketsanya langsung dia tutup. 'Eh... nggak. Cuma coret-coret,' gumamnya pelan, mata tak berani menatapmu. Sekilas kamu melihat gambar mata yang sangat realistis, basah dan cemas.",
       choices: [
         { text: "'Keren kok gambarnya.'", nextId: "EP1_CLASS_END", delta: { dimas: 2, echo: 1 } },
         { text: "'Sorry ganggu.'", nextId: "EP1_CLASS_END", delta: { dimas: 0, echo: 0 } },
@@ -108,7 +108,7 @@
       ]
     },
     EP1_INTERACT_SALSA: {
-      text: "Salsa menoleh tajam. 'Jadwal? Ada di papan tulis kan?' nadanya ketus. Dia menghela napas panjang, lalu melembut sedikit. 'Sorry. Gue lagi pusing sama materi Fisika ini. Lo anak baru ya?'",
+      text: "Salsa menoleh tajam. 'Jadwal? Ada di papan tulis kan?' nadanya ketus seperti penggaris besi. Dia menghela napas panjang, lalu melembut sedikit. 'Sorry. Gue lagi pusing sama materi Fisika ini. Lo anak baru ya?'",
       choices: [
         { text: "'Iya. Santai aja.'", nextId: "EP1_CLASS_END", delta: { salsa: 1, echo: 1 } },
         { text: "'Galak banget.'", nextId: "EP1_CLASS_END", delta: { salsa: -2, echo: 1 } },
@@ -116,7 +116,7 @@
       ]
     },
     EP1_CLASS_INTERACTION: {
-      text: "Pelajaran dimulai. Bu Rina menjelaskan Sejarah. Membosankan. Nara diam-diam mengoper kertas kecil padamu. Isinya gambar kartun guru yang lucu.",
+      text: "Pelajaran dimulai. Bu Rina menjelaskan sejarah dengan suara monoton. Nara diam-diam mengoper kertas kecil padamu. Isinya doodle kartun guru yang lucu dengan cape. Kamu menahan tawa di balik masker.",
       choices: [
         { text: "Tahan tawa dan balas gambar.", nextId: "EP1_CLASS_END", delta: { nara: 2 } },
         { text: "Abaikan kertasnya.", nextId: "EP1_CLASS_END", delta: { nara: -1 } },
@@ -124,7 +124,7 @@
       ]
     },
     EP1_CLASS_END: {
-      text: "Bel pulang berbunyi nyaring. Langit di luar sudah gelap gulita. Hujan deras turun tiba-tiba, seperti menumpahkan seluruh air dari langit. Semua siswa tertahan di gerbang sekolah.\n\nKamu melihat Nara menggigil kedinginan. Dimas berdiri diam menatap hujan. Salsa sibuk menelepon jemputan dengan panik.",
+      text: "Bel pulang berbunyi nyaring. Langit di luar sudah gelap gulita. Hujan deras turun tiba-tiba, seperti menumpahkan seluruh air dari langit. Semua siswa tertahan di gerbang sekolah.\n\nNara menggigil, memeluk buku ke dada. Dimas berdiri diam menatap hujan seolah mencari jawaban di balik tirai air. Salsa sibuk menelepon jemputan dengan panik, layar HP berkali-kali diremas.",
       choices: [
         { text: "Tawarkan payung ke Nara.", nextId: "EP2_INTRO", delta: { nara: 3, echo: 2 } },
         { text: "Berdiri diam di sebelah Dimas, berbagi sunyi.", nextId: "EP2_INTRO", delta: { dimas: 2, echo: 1 } },
@@ -135,7 +135,7 @@
 
     // --- EPISODE 2: KATA YANG TAK TERUCAP ---
     EP2_INTRO: {
-      text: "EPISODE 2: KATA YANG TAK TERUCAP\n\nSeminggu berlalu. Kamu mulai hafal letak kantin dan toilet, tapi belum hafal hati teman-temanmu.\n\nBu Rina memberikan tugas kelompok Sejarah. 'Kalian berempat satu tim,' tunjuknya padamu, Nara, Dimas, dan Salsa.\n\nDi perpustakaan, suasana kaku. Salsa mengetuk-ngetuk pulpen dengan tidak sabar. 'Dimas, lo udah cari bahannya belum sih? Dari tadi diem doang!'",
+      text: "EPISODE 2: KATA YANG TAK TERUCAP\n\nSeminggu berlalu. Kamu hafal posisi kantin, toilet, dan warung es teh, tapi hati teman-temanmu masih seperti peta tanpa legenda.\n\nBu Rina memberikan tugas kelompok Sejarah. 'Kalian berempat satu tim,' tunjuknya padamu, Nara, Dimas, dan Salsa.\n\nDi perpustakaan, udara AC dingin tapi suasana kaku. Salsa mengetuk-ngetuk pulpen dengan tempo marah. 'Dimas, lo udah cari bahannya belum sih? Dari tadi diem doang!'",
       choices: [
         { text: "Tengahi mereka: 'Sabar Sal, kita cari bareng.'", nextId: "EP2_CONFLICT", delta: { salsa: 1, dimas: 1, echo: 2 } },
         { text: "Diam dan pura-pura baca buku.", nextId: "EP2_SILENT", delta: { echo: -1 } },
@@ -144,7 +144,7 @@
       ]
     },
     EP2_CONFLICT: {
-      text: "Kamu mencoba bicara. Suaramu pelan tapi didengar. Salsa menghela napas kasar, 'Oke, sorry. Gue cuma panik. Nilai gue semester lalu turun.'\n\nDimas mengangkat wajahnya sedikit, menatapmu dengan rasa terima kasih. 'Gue... gue sebenernya udah rangkum, tapi belum diketik,' suaranya nyaris tak terdengar.",
+      text: "Kamu mencoba bicara. Suaramu pelan tapi menembus celah tegang. Salsa menghela napas kasar, 'Oke, sorry. Gue cuma panik. Nilai gue semester lalu turun.'\n\nDimas mengangkat wajahnya sedikit, menatapmu dengan rasa terima kasih yang canggung. 'Gue... gue sebenernya udah rangkum, tapi belum diketik,' suaranya nyaris tak terdengar di antara dengung AC.",
       choices: [
         { text: "Senyum lega: 'Nah, kan ada progres.'", nextId: "EP3_INTRO", delta: { echo: 1, dimas: 1 } },
         { text: "Ajak mereka istirahat minum es teh dulu.", nextId: "EP3_INTRO", delta: { nara: 2, salsa: 1, dimas: 1 } },
@@ -152,7 +152,7 @@
       ]
     },
     EP2_SILENT: {
-      text: "Echo berbisik: 'Bukan urusanmu. Jangan cari masalah.' Kamu menunduk. Salsa membentak Dimas lagi, 'Lo tuh niat sekolah nggak sih?!'\n\nDimas tidak menjawab. Dia berdiri, mengemasi tasnya, dan pergi begitu saja. Nara mengejarnya. Kelompok bubar dengan perasaan tidak enak.",
+      text: "Echo berbisik: 'Bukan urusanmu. Jangan cari masalah.' Kamu menunduk lebih dalam ke buku yang belum dibuka. Salsa membentak Dimas lagi, 'Lo tuh niat sekolah nggak sih?!'\n\nDimas tidak menjawab. Dia berdiri, mengemasi tasnya dengan tangan gemetar, dan pergi begitu saja. Nara mengejarnya. Kelompok bubar dengan perasaan tidak enak yang menggantung di udara.",
       choices: [
         { text: "Pulang dengan rasa bersalah yang berat.", nextId: "EP3_INTRO", delta: { echo: -2 } },
         { text: "Chat Nara: 'Gimana Dimas?'", nextId: "EP3_INTRO", delta: { nara: 1 } },
@@ -160,14 +160,14 @@
       ]
     },
     EP2_DEFEND_DIMAS: {
-      text: "'Dimas udah kerjain bagiannya kok, gue liat tadi,' kamu berbohong demi melindunginya. Dimas kaget, matanya membulat. Salsa cemberut, melipat tangan di dada. 'Oke, awas aja kalo nggak selesai.'\n\nSetelah Salsa pergi ke toilet, Dimas berbisik, 'Makasih...'",
+      text: "'Dimas udah kerjain bagiannya kok, gue liat tadi,' kamu berbohong demi melindunginya. Dimas kaget, matanya membulat. Salsa cemberut, melipat tangan di dada. 'Oke, awas aja kalo nggak selesai.'\n\nSetelah Salsa pergi ke toilet, Dimas berbisik, 'Makasih...' suaranya serak, seolah kata itu jarang ia gunakan.",
       choices: [
         { text: "'Sama-sama. Tapi beneran kerjain ya.'", nextId: "EP3_INTRO", delta: { dimas: 2, echo: 1 } },
         { text: "Tepuk bahunya dan senyum.", nextId: "EP3_INTRO", delta: { dimas: 3, echo: 2 } }
       ]
     },
     EP2_SUPPORT_SALSA: {
-      text: "'Kita harus ngebut emang, deadline besok,' katamu tegas. Salsa merasa didukung dan mengangguk antusias. 'Tuh dengerin!'\n\nDimas semakin menunduk, tubuhnya terlihat kecil di kursi perpustakaan. Dia tidak bicara sepatah kata pun sampai pertemuan selesai.",
+      text: "'Kita harus ngebut emang, deadline besok,' katamu tegas. Salsa merasa didukung dan mengangguk antusias. 'Tuh dengerin!' katanya tajam.\n\nDimas semakin menunduk, tubuhnya terlihat kecil di kursi perpustakaan. Dia tidak bicara sepatah kata pun sampai pertemuan selesai.",
       choices: [
         { text: "Lanjut ke Episode 3.", nextId: "EP3_INTRO", delta: { salsa: 2, dimas: -1 } }
       ]
@@ -175,7 +175,7 @@
 
     // --- EPISODE 3: RUMAH YANG SUNYI ---
     EP3_INTRO: {
-      text: "EPISODE 3: RUMAH YANG SUNYI\n\nMalam hari. Kamu pulang ke rumah yang besar tapi terasa kosong. Lampu ruang tengah menyala, tapi tidak ada suara TV atau obrolan.\n\nMakan malam dengan orang tua. Hanya ada suara denting sendok beradu dengan piring keramik. Ayah sibuk dengan tabletnya, Ibu membalas chat di HP.\n\n'Gimana sekolah barumu?' tanya Ibu tiba-tiba, tanpa menoleh dari layarnya.",
+      text: "EPISODE 3: RUMAH YANG SUNYI\n\nMalam hari. Kamu pulang ke rumah yang besar tapi terasa kosong. Lampu ruang tengah menyala, tapi tidak ada suara TV atau obrolan. Hanya bau sup hangat yang menggantung tanpa cerita.\n\nMakan malam dengan orang tua. Hanya ada suara denting sendok beradu dengan piring keramik. Ayah sibuk dengan tabletnya, Ibu membalas chat di HP.\n\n'Gimana sekolah barumu?' tanya Ibu tiba-tiba, tanpa menoleh dari layarnya.",
       choices: [
         { text: "'Biasa aja. Nggak ada yang spesial.'", nextId: "EP3_DINNER_COLD", delta: { echo: -2 } },
         { text: "'Ada temen baru, namanya Nara. Dia lucu.'", nextId: "EP3_DINNER_WARM", delta: { echo: 2 } },
@@ -192,7 +192,7 @@
       ]
     },
     EP3_DINNER_WARM: {
-      text: "Ibu meletakkan HP-nya sebentar. Dia menatapmu, benar-benar menatapmu. 'Oh ya? Bagus dong kalau udah punya temen. Ajak main ke rumah kapan-kapan.'\n\nSenyum tipis terbit di wajahnya. Itu koneksi kecil, sangat rapuh, tapi terasa hangat di dada.",
+      text: "Ibu meletakkan HP-nya sebentar. Dia menatapmu, benar-benar menatapmu. 'Oh ya? Bagus dong kalau udah punya temen. Ajak main ke rumah kapan-kapan.'\n\nSenyum tipis terbit di wajahnya. Koneksi kecil itu rapuh, tapi hangat seperti selimut yang baru ditarik ke bahu.",
       choices: [
         { text: "Cerita lebih banyak soal tugas kelompok.", nextId: "EP3_ROOM", delta: { echo: 3 } },
         { text: "Sudahi sebelum canggung, lalu makan.", nextId: "EP3_ROOM", delta: { echo: 1 } },
@@ -200,7 +200,7 @@
       ]
     },
     EP3_ROOM: {
-      text: "Di kamarmu, kamu menatap cermin. Bayanganmu sendiri menatap balik. Sunyi sekali.\n\nEcho: 'Kau sendirian. Selalu begitu. Dan itu lebih baik. Tidak ada yang bisa menyakitimu di sini.'",
+      text: "Di kamarmu, kamu menatap cermin. Bayanganmu sendiri menatap balik, berkedip dengan jeda yang sama. Sunyi sekali.\n\nEcho: 'Kau sendirian. Selalu begitu. Dan itu lebih baik. Tidak ada yang bisa menyakitimu di sini.'",
       choices: [
         { text: "Buka HP, lihat foto profil teman-teman.", nextId: "EP4_INTRO", delta: { echo: 1 } },
         { text: "Matikan lampu, tidur dalam gelap.", nextId: "EP4_INTRO", delta: { echo: -2 } },
@@ -210,7 +210,7 @@
 
     // --- EPISODE 4: SAAT KITA SALING MEMBUKA ---
     EP4_INTRO: {
-      text: "EPISODE 4: SAAT KITA SALING MEMBUKA\n\nBeberapa minggu kemudian. Ujian semester semakin dekat. Tekanan di sekolah terasa mencekik.\n\nKamu naik ke atap sekolah untuk mencari udara segar. Di sana, di sudut yang tersembunyi tangki air, kamu menemukan seseorang sedang duduk memeluk lutut. Bahunya berguncang.",
+      text: "EPISODE 4: SAAT KITA SALING MEMBUKA\n\nBeberapa minggu kemudian. Ujian semester semakin dekat. Tekanan di sekolah terasa mencekik seperti kerah seragam yang terlalu ketat.\n\nKamu naik ke atap sekolah untuk mencari udara segar. Di sana, di sudut tersembunyi dekat tangki air, seseorang duduk memeluk lutut. Bahunya berguncang pelan.",
       choices: [
         { text: "Itu Nara. (Dekati dia)", nextId: "EP4_COMFORT_NARA", delta: { nara: 1 } },
         { text: "Itu Dimas. (Dekati dia)", nextId: "EP4_COMFORT_DIMAS", delta: { dimas: 1 } },
@@ -219,7 +219,7 @@
       ]
     },
     EP4_COMFORT_NARA: {
-      text: "Nara terkejut saat melihatmu. Dia buru-buru menghapus air matanya, mencoba tersenyum—topeng cerianya yang biasa. 'Eh, hai! Gue... gue cuma kelilipan.'\n\nTapi matanya merah dan bengkak. 'Gue capek,' bisiknya tiba-tiba, pertahanannya runtuh. 'Semua orang ngira gue happy terus. Padahal gue capek harus selalu jadi badut biar orang lain seneng.'",
+      text: "Nara terkejut saat melihatmu. Dia buru-buru menghapus air matanya, mencoba menempelkan lagi topeng cerianya yang biasa. 'Eh, hai! Gue... gue cuma kelilipan.'\n\nTapi matanya merah dan bengkak. 'Gue capek,' bisiknya akhirnya, pertahanannya runtuh. 'Semua orang ngira gue happy terus. Padahal gue capek harus selalu jadi badut biar orang lain seneng.'",
       choices: [
         { text: "'Nggak apa-apa sedih kok. Lo manusia.'", nextId: "EP5_INTRO", delta: { nara: 3, echo: 2 } },
         { text: "Duduk diam di sebelahnya, menemani.", nextId: "EP5_INTRO", delta: { nara: 2, echo: 1 } },
@@ -227,7 +227,7 @@
       ]
     },
     EP4_COMFORT_DIMAS: {
-      text: "Dimas sedang merobek-robek kertas sketsanya. Dia kaget setengah mati saat kamu datang. 'Jangan liat!' serunya.\n\nKamu melihat sobekan gambar-gambar indah itu berserakan. 'Gue... gue ngerasa nggak ada gunanya,' suaranya bergetar. 'Orang tua gue mau gue masuk IPA, jadi dokter. Gambar gue dibilang sampah.'",
+      text: "Dimas sedang merobek-robek kertas sketsanya. Dia kaget setengah mati saat kamu datang. 'Jangan liat!' serunya spontan.\n\nSobekan gambar-gambar indah itu berserakan seperti kepingan hati. 'Gue... gue ngerasa nggak ada gunanya,' suaranya bergetar. 'Orang tua gue mau gue masuk IPA, jadi dokter. Gambar gue dibilang sampah.'",
       choices: [
         { text: "'Gambar lo itu nyawa lo, Dim. Jangan berhenti.'", nextId: "EP5_INTRO", delta: { dimas: 3, echo: 2 } },
         { text: "Bantu pungut sobekan kertasnya.", nextId: "EP5_INTRO", delta: { dimas: 2, echo: 1 } },
@@ -235,7 +235,7 @@
       ]
     },
     EP4_COMFORT_SALSA: {
-      text: "Salsa sedang menelepon, suaranya tinggi menahan tangis, lalu dia membanting HP-nya ke lantai. Dia melihatmu dan langsung membuang muka.\n\n'Apa lo liat-liat?!' bentaknya, tapi air mata mengalir deras. 'Nilai gue turun satu poin. Satu poin! Dan bokap gue udah ngancem bakal sita semua fasilitas gue. Gue harus sempurna, atau gue nggak dianggap.'",
+      text: "Salsa menelepon dengan suara tinggi menahan tangis, lalu membanting HP-nya ke lantai sampai casingnya mental. Dia melihatmu dan langsung membuang muka.\n\n'Apa lo liat-liat?!' bentaknya, tapi air mata mengalir deras. 'Nilai gue turun satu poin. Satu poin! Dan bokap gue udah ngancem bakal sita semua fasilitas gue. Gue harus sempurna, atau gue nggak dianggap.'",
       choices: [
         { text: "'Nilai bukan segalanya, Sal. Lo lebih dari angka.'", nextId: "EP5_INTRO", delta: { salsa: 2, echo: 1 } },
         { text: "Ambilkan HP-nya dan cek kondisinya.", nextId: "EP5_INTRO", delta: { salsa: 3, echo: 2 } },
@@ -245,7 +245,7 @@
 
     // --- EPISODE 5: YANG INGIN KITA SAMPAIKAN ---
     EP5_INTRO: {
-      text: "EPISODE 5: YANG INGIN KITA SAMPAIKAN\n\nHari terakhir semester. Raport akan dibagikan. Koridor riuh rendah, tapi kepalamu bising oleh satu suara.\n\nEcho bersuara keras, lebih keras dari biasanya: 'Jangan berharap lebih. Nanti sakit. Lihat mereka? Mereka akan melupakanmu saat liburan. Kembali ke cangkangmu. Di sana aman.'\n\nTapi hatimu, yang sudah merasakan sedikit koneksi, ingin memberontak.",
+      text: "EPISODE 5: YANG INGIN KITA SAMPAIKAN\n\nHari terakhir semester. Raport akan dibagikan. Koridor riuh rendah, tapi kepalamu bising oleh satu suara.\n\nEcho bersuara keras, lebih keras dari biasanya: 'Jangan berharap lebih. Nanti sakit. Lihat mereka? Mereka akan melupakanmu saat liburan. Kembali ke cangkangmu. Di sana aman.'\n\nNamun hatimu, yang sudah pernah disentuh orang lain, menolak diam.",
       choices: [
         { text: "Lawan Echo. Teriak dalam hati: 'GUE MAU BAHAGIA!'", nextId: "EP5_CONFRONTATION", delta: { echo: 5 } },
         { text: "Terima Echo. 'Lo bener. Sendiri itu aman.'", nextId: "FINALE_CHECK", delta: { echo: -5 } },
@@ -260,7 +260,7 @@
       ]
     },
     EP5_FRIENDS: {
-      text: "Kamu melihat Nara, Dimas, dan Salsa sedang berkumpul di dekat mading. Mereka tertawa. Kamu berjalan mendekat.\n\nEcho: 'Jangan. Berhenti.'\n\nKamu terus berjalan.",
+      text: "Kamu melihat Nara, Dimas, dan Salsa sedang berkumpul di dekat mading. Mereka tertawa, napas mereka membentuk dunia kecil yang ingin kamu masuki.\n\nEcho: 'Jangan. Berhenti.'\n\nKamu terus berjalan.",
       choices: [
         { text: "Sapa mereka dengan lantang.", nextId: "FINALE_CHECK", delta: { echo: 3, nara: 1, dimas: 1, salsa: 1 } }
       ]
@@ -274,19 +274,19 @@
 
     // --- ENDINGS ---
     END_SOFT_HEALING: {
-      text: "FINALE: SOFT HEALING\n\nLiburan tiba. Kamu di rumah, membantu Ibu memotong sayur di dapur. Tidak ada obrolan berat, hanya cerita ringan tentang harga cabai dan tetangga sebelah.\n\nTapi suasananya beda. Lebih cair. Kamu berani tertawa kecil. Echo tidak hilang sepenuhnya; dia masih ada, duduk manis di sudut pikiranmu, tapi tidak lagi memerintah. Dia kini seperti teman lama yang cerewet tapi sayang.\n\nKamu belajar bahwa menyembuhkan diri sendiri dimulai dari keberanian untuk tidak menutup pintu kamar.",
+      text: "FINALE: SOFT HEALING\n\nLiburan tiba. Kamu di rumah, membantu Ibu memotong sayur di dapur. Tidak ada obrolan berat, hanya cerita ringan tentang harga cabai dan tetangga sebelah.\n\nTapi suasananya beda. Lebih cair. Kamu berani tertawa kecil. Echo tidak hilang sepenuhnya; dia masih ada, duduk manis di sudut pikiranmu, tapi tidak lagi memerintah. Dia kini seperti teman lama yang cerewet tapi ingin kamu selamat.\n\nKamu belajar bahwa menyembuhkan diri sendiri dimulai dari keberanian untuk tidak menutup pintu kamar.",
       choices: [{ text: "Selesai.", nextId: "BEGIN", delta: {} }, { text: "Replay.", nextId: "BEGIN", delta: {} }]
     },
     END_CONNECTED: {
-      text: "FINALE: CONNECTED\n\n'Woy! Jadi nggak nonton?' Nara melambai dari kejauhan. Dimas dan Salsa sudah menunggu di gerbang sekolah.\n\nKamu berlari menghampiri mereka. Tawa kalian pecah di udara sore. Kamu merasa... terlihat. Kamu merasa menjadi bagian dari sesuatu.\n\nEcho diam. Benar-benar diam. Atau mungkin, suaranya kini telah berpadu dengan suara tawa teman-temanmu, menjadi harmoni yang indah. Kamu tidak sendirian lagi.",
+      text: "FINALE: CONNECTED\n\n'Woy! Jadi nggak nonton?' Nara melambai dari kejauhan. Dimas dan Salsa sudah menunggu di gerbang sekolah dengan tiket di tangan.\n\nKamu berlari menghampiri mereka. Tawa kalian pecah di udara sore yang lembab. Kamu merasa... terlihat. Kamu merasa menjadi bagian dari sesuatu.\n\nEcho diam. Benar-benar diam. Atau mungkin, suaranya kini telah berpadu dengan suara tawa teman-temanmu, menjadi harmoni yang indah. Kamu tidak sendirian lagi.",
       choices: [{ text: "Selesai.", nextId: "BEGIN", delta: {} }, { text: "Replay.", nextId: "BEGIN", delta: {} }]
     },
     END_AMBIGUOUS: {
-      text: "FINALE: AMBIGUOUS\n\nSemester berakhir. Kamu tersenyum tipis pada teman-temanmu saat berpapasan di gerbang, lalu berjalan pulang sendirian.\n\nAda harapan. Kamu tahu kamu bisa berteman kalau kamu mau. Tapi hari ini, kamu memilih untuk pulang dan istirahat. Mungkin semester depan akan lebih baik. Mungkin nanti kamu akan lebih berani.\n\nUntuk sekarang, 'baik-baik saja' sudah cukup.",
+      text: "FINALE: AMBIGUOUS\n\nSemester berakhir. Kamu tersenyum tipis pada teman-temanmu saat berpapasan di gerbang, lalu berjalan pulang sendirian.\n\nAda harapan. Kamu tahu kamu bisa berteman kalau kamu mau. Tapi hari ini, kamu memilih untuk pulang dan istirahat. Mungkin semester depan akan lebih baik. Mungkin nanti kamu akan lebih berani.\n\nUntuk sekarang, 'baik-baik saja' sudah cukup, seperti menarik napas sebelum menyelam lagi.",
       choices: [{ text: "Selesai.", nextId: "BEGIN", delta: {} }, { text: "Replay.", nextId: "BEGIN", delta: {} }]
     },
     END_ISOLATED: {
-      text: "FINALE: ISOLATED\n\nKamu berjalan keluar gerbang sendirian, earphone terpasang rapat, volume maksimal. Lagu favoritmu mengalun, meredam bising dunia.\n\nKamu melihat Nara, Dimas, dan Salsa tertawa di kejauhan. Mereka tampak seperti dunia yang berbeda, dunia yang tidak bisa kamu sentuh.\n\n'Kita aman di sini,' bisik Echo lembut, memelukmu erat dalam kesendirian. 'Mereka cuma bakal nyakitin kita.'\n\nDan untuk pertama kalinya, kamu setuju sepenuhnya. Kamu berjalan menjauh, aman, tapi sangat, sangat sepi.",
+      text: "FINALE: ISOLATED\n\nKamu berjalan keluar gerbang sendirian, earphone terpasang rapat, volume maksimal. Lagu favoritmu mengalun, meredam bising dunia.\n\nNara, Dimas, dan Salsa tertawa di kejauhan. Mereka tampak seperti dunia yang berbeda, dunia yang tidak bisa kamu sentuh.\n\n'Kita aman di sini,' bisik Echo lembut, memelukmu erat dalam kesendirian. 'Mereka cuma bakal nyakitin kita.'\n\nDan untuk pertama kalinya, kamu setuju sepenuhnya. Kamu berjalan menjauh, aman, tapi sangat, sangat sepi.",
       choices: [{ text: "Selesai.", nextId: "BEGIN", delta: {} }, { text: "Replay.", nextId: "BEGIN", delta: {} }]
     }
   };
