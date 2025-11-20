@@ -2,150 +2,256 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Voice Story Prototype</title>
+  <title>Echo of Thought - Voice Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #05080f;
+      --bg-soft: #0e1725;
+      --panel: rgba(17, 26, 40, 0.78);
+      --stroke: rgba(255, 255, 255, 0.08);
+      --text: #e8edf7;
+      --muted: #9fb1d1;
+      --accent: #f6c344;
+      --accent-2: #4ecdc4;
+      --shadow: 0 10px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #111;
-      color: #eee;
+      font-family: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+      background: radial-gradient(120% 120% at 20% 20%, rgba(78, 205, 196, 0.12), transparent),
+        radial-gradient(100% 80% at 85% 10%, rgba(246, 195, 68, 0.1), transparent),
+        linear-gradient(160deg, #0a1220, #05080f 50%, #05080f);
+      color: var(--text);
       margin: 0;
       padding: 0;
       display: flex;
       flex-direction: column;
       height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      background: radial-gradient(50% 50% at 50% 50%, rgba(255, 255, 255, 0.04), transparent);
+      transform: rotate(8deg);
+      pointer-events: none;
+      filter: blur(50px);
     }
 
     header {
-      padding: 12px 16px;
-      background: #181818;
-      border-bottom: 1px solid #333;
+      padding: 16px 20px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--stroke);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
       font-weight: 600;
       display: flex;
       gap: 16px;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
+      position: relative;
+      z-index: 1;
     }
 
     .title {
       font-size: 1.05rem;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
     }
 
     .api-controls {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
       font-weight: 400;
       font-size: 0.85rem;
-      color: #bbb;
+      color: var(--muted);
+      min-width: 260px;
     }
 
     .api-controls label {
-      font-size: 0.8rem;
+      font-size: 0.74rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #aaa;
+      letter-spacing: 0.12em;
+      color: var(--text);
+      opacity: 0.8;
     }
 
     .api-controls .key-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 8px;
     }
 
     .api-controls input {
-      background: #111;
-      color: #fff;
-      border: 1px solid #333;
-      border-radius: 6px;
-      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+      padding: 10px 12px;
       min-width: 220px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .api-controls input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(246, 195, 68, 0.14);
+      transform: translateY(-1px);
     }
 
     .api-controls button {
-      background: #2d52a2;
+      background: linear-gradient(120deg, var(--accent), #fca238);
       border: none;
-      color: #fff;
-      padding: 6px 12px;
-      border-radius: 6px;
+      color: #0b0f17;
+      padding: 10px 14px;
+      border-radius: 12px;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      box-shadow: 0 10px 30px rgba(246, 195, 68, 0.25);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
     }
 
     .api-controls button:hover {
-      background: #3c64c5;
+      transform: translateY(-1px);
+      box-shadow: 0 14px 40px rgba(246, 195, 68, 0.35);
     }
 
     .api-controls #clear-key {
-      background: #444;
+      background: linear-gradient(120deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+      color: var(--text);
+      box-shadow: none;
+      border: 1px solid var(--stroke);
     }
 
     .api-controls #clear-key:hover {
-      background: #555;
+      border-color: var(--muted);
     }
 
     #log {
       flex: 1;
-      padding: 16px;
+      padding: 24px;
       overflow-y: auto;
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(180deg, rgba(14, 23, 37, 0.7), rgba(7, 10, 18, 0.85));
+      border-top: 1px solid var(--stroke);
+      border-bottom: 1px solid var(--stroke);
     }
 
     .msg {
-      margin-bottom: 10px;
-      max-width: 80%;
-      line-height: 1.4;
+      margin-bottom: 14px;
+      max-width: 82%;
+      line-height: 1.5;
       white-space: pre-wrap;
+      padding: 12px 14px;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+      position: relative;
+      animation: floatIn 220ms ease;
+    }
+
+    .msg::after {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      pointer-events: none;
     }
 
     .msg.system {
-      color: #aaa;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--stroke);
       font-size: 0.9rem;
     }
 
     .msg.player {
-      background: #2b4c7e;
-      padding: 8px 10px;
-      border-radius: 12px 12px 0 12px;
+      background: linear-gradient(135deg, rgba(78, 205, 196, 0.14), rgba(78, 205, 196, 0.28));
+      border: 1px solid rgba(78, 205, 196, 0.4);
       margin-left: auto;
     }
 
     .msg.game {
-      background: #222;
-      padding: 8px 10px;
-      border-radius: 12px 12px 12px 0;
+      background: linear-gradient(135deg, rgba(246, 195, 68, 0.1), rgba(246, 195, 68, 0.22));
+      border: 1px solid rgba(246, 195, 68, 0.35);
       margin-right: auto;
     }
 
     footer {
-      padding: 12px 16px;
-      background: #181818;
-      border-top: 1px solid #333;
+      padding: 14px 20px;
+      background: var(--panel);
+      border-top: 1px solid var(--stroke);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      backdrop-filter: blur(8px);
+      box-shadow: var(--shadow);
+      position: relative;
+      z-index: 1;
     }
 
     #mic-btn {
-      padding: 10px 16px;
+      padding: 12px 18px;
       border-radius: 999px;
-      border: none;
+      border: 1px solid rgba(255, 255, 255, 0.12);
       font-size: 0.95rem;
       cursor: pointer;
-      color: #fff;
-      background: #3a7bd5;
+      color: #0b0f17;
+      background: linear-gradient(120deg, var(--accent-2), #7ef0d6);
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      box-shadow: 0 12px 30px rgba(78, 205, 196, 0.3);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #mic-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 42px rgba(78, 205, 196, 0.38);
     }
 
     #mic-btn.listening {
-      background: #d53a3a;
+      background: linear-gradient(120deg, #f66d6d, #ff9b6a);
+      color: #140d0d;
+      box-shadow: 0 16px 36px rgba(246, 109, 109, 0.4);
     }
 
     #status {
-      font-size: 0.85rem;
-      color: #aaa;
+      font-size: 0.9rem;
+      color: var(--muted);
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--stroke);
+    }
+
+    @keyframes floatIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   </style>
 </head>

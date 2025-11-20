@@ -1,4 +1,4 @@
-﻿(() => {
+(() => {
   "use strict";
 
   const CLIENT_NAME = "Echo of Thought Prototype";
@@ -20,7 +20,7 @@
         { text: "Berlutut dan bantu pungut bukunya.", nextId: "EP1_MEET_NARA", delta: { nara: 2, echo: 1 } },
         { text: "Gumamkan 'sorry' pelan dan lanjut jalan.", nextId: "EP1_IGNORE_NARA", delta: { nara: 0, echo: -1 } },
         { text: "Diam saja, tunggu dia selesai.", nextId: "EP1_IGNORE_NARA", delta: { nara: -1, echo: 0 } },
-        { text: "Salahkan lantai. 'Licin banget ya?'", nextId: "EP1_JOKE_NARA", delta: { nara: 1, echo: 1 } }
+        { text: "Salahkan lantai. 'Licin banget ya - '", nextId: "EP1_JOKE_NARA", delta: { nara: 1, echo: 1 } }
       ]
     },
     EP1_CORRIDOR_SHY: {
@@ -48,7 +48,7 @@
       ]
     },
     EP1_MEET_NARA: {
-      text: "'Makasih banget!' Nara tersenyum lebar, matanya menyipit di balik kacamata. 'Gue Nara. Sumpah, gue kira bakal dimarahin kakak kelas tadi.' Debu di roknya dia tepuk pelan, seolah merapikan juga rasa malunya. 'Lo anak baru ya? Muka lo asing. Mau gue anter ke kelas?'\n\nEcho bergumam sinis: 'Terlalu ramah. Pasti ada maunya. Jangan terlalu dekat.'",
+      text: "'Makasih banget!' Nara tersenyum lebar, matanya menyipit di balik kacamata. 'Gue Nara. Sumpah, gue kira bakal dimarahin kakak kelas tadi.' Debu di roknya dia tepuk pelan, seolah merapikan juga rasa malunya. 'Lo anak baru ya -  Muka lo asing. Mau gue anter ke kelas - '\n\nEcho bergumam sinis: 'Terlalu ramah. Pasti ada maunya. Jangan terlalu dekat.'",
       choices: [
         { text: "'Boleh, gue butuh bantuan.' (Terima)", nextId: "EP1_CLASS_WITH_NARA", delta: { nara: 2, echo: 1 } },
         { text: "'Gue bisa cari sendiri.' (Tolak)", nextId: "EP1_CLASS", delta: { nara: -1, echo: -1 } },
@@ -57,7 +57,7 @@
       ]
     },
     EP1_JOKE_NARA: {
-      text: "Nara tertawa renyah, suaranya memantul di koridor seperti lonceng kecil. 'Iya kan? Lantai sekolah ini emang konspirasi buat bikin murid jatuh!' Suasana mencair. Dia mengulurkan tangan. 'Gue Nara. Lo?'",
+      text: "Nara tertawa renyah, suaranya memantul di koridor seperti lonceng kecil. 'Iya kan -  Lantai sekolah ini emang konspirasi buat bikin murid jatuh!' Suasana mencair. Dia mengulurkan tangan. 'Gue Nara. Lo - '",
       choices: [
         { text: "Sebut namamu dan jabat tangannya.", nextId: "EP1_CLASS_WITH_NARA", delta: { nara: 3, echo: 2 } },
         { text: "Sebut nama tanpa jabat tangan.", nextId: "EP1_CLASS_WITH_NARA", delta: { nara: 1, echo: 0 } },
@@ -89,7 +89,7 @@
     EP1_CLASS_OBSERVE: {
       text: "Dari belakang, kamu melihat dinamika kelas seperti panggung kecil. Ada kelompok populer, ada yang tidur dengan hoodie menutupi muka. Dimas, cowok di depanmu, menggambar sesuatu yang gelap dan rumit. Salsa, cewek di sebelahnya, perfeksionis sampai kertasnya nyaris sobek karena terus dihapus.",
       choices: [
-        { text: "Tegur Dimas: 'Gambar apa?'", nextId: "EP1_INTERACT_DIMAS", delta: { dimas: 1, echo: 1 } },
+        { text: "Tegur Dimas: 'Gambar apa - '", nextId: "EP1_INTERACT_DIMAS", delta: { dimas: 1, echo: 1 } },
         { text: "Diam saja.", nextId: "EP1_CLASS_END", delta: { echo: 0 } }
       ]
     },
@@ -108,7 +108,7 @@
       ]
     },
     EP1_INTERACT_SALSA: {
-      text: "Salsa menoleh tajam. 'Jadwal? Ada di papan tulis kan?' nadanya ketus seperti penggaris besi. Dia menghela napas panjang, lalu melembut sedikit. 'Sorry. Gue lagi pusing sama materi Fisika ini. Lo anak baru ya?'",
+      text: "Salsa menoleh tajam. 'Jadwal -  Ada di papan tulis kan - ' nadanya ketus seperti penggaris besi. Dia menghela napas panjang, lalu melembut sedikit. 'Sorry. Gue lagi pusing sama materi Fisika ini. Lo anak baru ya - '",
       choices: [
         { text: "'Iya. Santai aja.'", nextId: "EP1_CLASS_END", delta: { salsa: 1, echo: 1 } },
         { text: "'Galak banget.'", nextId: "EP1_CLASS_END", delta: { salsa: -2, echo: 1 } },
@@ -128,14 +128,14 @@
       choices: [
         { text: "Tawarkan payung ke Nara.", nextId: "EP2_INTRO", delta: { nara: 3, echo: 2 } },
         { text: "Berdiri diam di sebelah Dimas, berbagi sunyi.", nextId: "EP2_INTRO", delta: { dimas: 2, echo: 1 } },
-        { text: "Tanya Salsa butuh tebengan online?", nextId: "EP2_INTRO", delta: { salsa: 2, echo: 1 } },
+        { text: "Tanya Salsa butuh tebengan online - ", nextId: "EP2_INTRO", delta: { salsa: 2, echo: 1 } },
         { text: "Terobos hujan sendirian. Lari.", nextId: "EP2_INTRO", delta: { echo: -2 } }
       ]
     },
 
     // --- EPISODE 2: KATA YANG TAK TERUCAP ---
     EP2_INTRO: {
-      text: "EPISODE 2: KATA YANG TAK TERUCAP\n\nSeminggu berlalu. Kamu hafal posisi kantin, toilet, dan warung es teh, tapi hati teman-temanmu masih seperti peta tanpa legenda.\n\nBu Rina memberikan tugas kelompok Sejarah. 'Kalian berempat satu tim,' tunjuknya padamu, Nara, Dimas, dan Salsa.\n\nDi perpustakaan, udara AC dingin tapi suasana kaku. Salsa mengetuk-ngetuk pulpen dengan tempo marah. 'Dimas, lo udah cari bahannya belum sih? Dari tadi diem doang!'",
+      text: "EPISODE 2: KATA YANG TAK TERUCAP\n\nSeminggu berlalu. Kamu hafal posisi kantin, toilet, dan warung es teh, tapi hati teman-temanmu masih seperti peta tanpa legenda.\n\nBu Rina memberikan tugas kelompok Sejarah. 'Kalian berempat satu tim,' tunjuknya padamu, Nara, Dimas, dan Salsa.\n\nDi perpustakaan, udara AC dingin tapi suasana kaku. Salsa mengetuk-ngetuk pulpen dengan tempo marah. 'Dimas, lo udah cari bahannya belum sih -  Dari tadi diem doang!'",
       choices: [
         { text: "Tengahi mereka: 'Sabar Sal, kita cari bareng.'", nextId: "EP2_CONFLICT", delta: { salsa: 1, dimas: 1, echo: 2 } },
         { text: "Diam dan pura-pura baca buku.", nextId: "EP2_SILENT", delta: { echo: -1 } },
@@ -152,10 +152,10 @@
       ]
     },
     EP2_SILENT: {
-      text: "Echo berbisik: 'Bukan urusanmu. Jangan cari masalah.' Kamu menunduk lebih dalam ke buku yang belum dibuka. Salsa membentak Dimas lagi, 'Lo tuh niat sekolah nggak sih?!'\n\nDimas tidak menjawab. Dia berdiri, mengemasi tasnya dengan tangan gemetar, dan pergi begitu saja. Nara mengejarnya. Kelompok bubar dengan perasaan tidak enak yang menggantung di udara.",
+      text: "Echo berbisik: 'Bukan urusanmu. Jangan cari masalah.' Kamu menunduk lebih dalam ke buku yang belum dibuka. Salsa membentak Dimas lagi, 'Lo tuh niat sekolah nggak sih - !'\n\nDimas tidak menjawab. Dia berdiri, mengemasi tasnya dengan tangan gemetar, dan pergi begitu saja. Nara mengejarnya. Kelompok bubar dengan perasaan tidak enak yang menggantung di udara.",
       choices: [
         { text: "Pulang dengan rasa bersalah yang berat.", nextId: "EP3_INTRO", delta: { echo: -2 } },
-        { text: "Chat Nara: 'Gimana Dimas?'", nextId: "EP3_INTRO", delta: { nara: 1 } },
+        { text: "Chat Nara: 'Gimana Dimas - '", nextId: "EP3_INTRO", delta: { nara: 1 } },
         { text: "Masa bodoh, kerjakan sendiri.", nextId: "EP3_INTRO", delta: { echo: -3, salsa: 1 } }
       ]
     },
@@ -175,7 +175,7 @@
 
     // --- EPISODE 3: RUMAH YANG SUNYI ---
     EP3_INTRO: {
-      text: "EPISODE 3: RUMAH YANG SUNYI\n\nMalam hari. Kamu pulang ke rumah yang besar tapi terasa kosong. Lampu ruang tengah menyala, tapi tidak ada suara TV atau obrolan. Hanya bau sup hangat yang menggantung tanpa cerita.\n\nMakan malam dengan orang tua. Hanya ada suara denting sendok beradu dengan piring keramik. Ayah sibuk dengan tabletnya, Ibu membalas chat di HP.\n\n'Gimana sekolah barumu?' tanya Ibu tiba-tiba, tanpa menoleh dari layarnya.",
+      text: "EPISODE 3: RUMAH YANG SUNYI\n\nMalam hari. Kamu pulang ke rumah yang besar tapi terasa kosong. Lampu ruang tengah menyala, tapi tidak ada suara TV atau obrolan. Hanya bau sup hangat yang menggantung tanpa cerita.\n\nMakan malam dengan orang tua. Hanya ada suara denting sendok beradu dengan piring keramik. Ayah sibuk dengan tabletnya, Ibu membalas chat di HP.\n\n'Gimana sekolah barumu - ' tanya Ibu tiba-tiba, tanpa menoleh dari layarnya.",
       choices: [
         { text: "'Biasa aja. Nggak ada yang spesial.'", nextId: "EP3_DINNER_COLD", delta: { echo: -2 } },
         { text: "'Ada temen baru, namanya Nara. Dia lucu.'", nextId: "EP3_DINNER_WARM", delta: { echo: 2 } },
@@ -184,7 +184,7 @@
       ]
     },
     EP3_DINNER_COLD: {
-      text: "Ibu hanya mengangguk pelan. 'Baguslah kalau nggak ada masalah. Jangan bikin ulah ya.'\n\nPercakapan mati sebelum sempat hidup. Echo berbisik di telingamu, suaranya dingin: 'Lihat? Mereka tidak benar-benar ingin tahu tentangmu. Mereka cuma basa-basi.'",
+      text: "Ibu hanya mengangguk pelan. 'Baguslah kalau nggak ada masalah. Jangan bikin ulah ya.'\n\nPercakapan mati sebelum sempat hidup. Echo berbisik di telingamu, suaranya dingin: 'Lihat -  Mereka tidak benar-benar ingin tahu tentangmu. Mereka cuma basa-basi.'",
       choices: [
         { text: "Masuk kamar dan kunci pintu.", nextId: "EP3_ROOM", delta: { echo: -1 } },
         { text: "Nyalakan TV keras-keras untuk memecah sunyi.", nextId: "EP3_ROOM", delta: { echo: 0 } },
@@ -192,11 +192,11 @@
       ]
     },
     EP3_DINNER_WARM: {
-      text: "Ibu meletakkan HP-nya sebentar. Dia menatapmu, benar-benar menatapmu. 'Oh ya? Bagus dong kalau udah punya temen. Ajak main ke rumah kapan-kapan.'\n\nSenyum tipis terbit di wajahnya. Koneksi kecil itu rapuh, tapi hangat seperti selimut yang baru ditarik ke bahu.",
+      text: "Ibu meletakkan HP-nya sebentar. Dia menatapmu, benar-benar menatapmu. 'Oh ya -  Bagus dong kalau udah punya temen. Ajak main ke rumah kapan-kapan.'\n\nSenyum tipis terbit di wajahnya. Koneksi kecil itu rapuh, tapi hangat seperti selimut yang baru ditarik ke bahu.",
       choices: [
         { text: "Cerita lebih banyak soal tugas kelompok.", nextId: "EP3_ROOM", delta: { echo: 3 } },
         { text: "Sudahi sebelum canggung, lalu makan.", nextId: "EP3_ROOM", delta: { echo: 1 } },
-        { text: "Tanya balik: 'Ibu gimana kerjanya?'", nextId: "EP3_ROOM", delta: { echo: 2 } }
+        { text: "Tanya balik: 'Ibu gimana kerjanya - '", nextId: "EP3_ROOM", delta: { echo: 2 } }
       ]
     },
     EP3_ROOM: {
@@ -235,7 +235,7 @@
       ]
     },
     EP4_COMFORT_SALSA: {
-      text: "Salsa menelepon dengan suara tinggi menahan tangis, lalu membanting HP-nya ke lantai sampai casingnya mental. Dia melihatmu dan langsung membuang muka.\n\n'Apa lo liat-liat?!' bentaknya, tapi air mata mengalir deras. 'Nilai gue turun satu poin. Satu poin! Dan bokap gue udah ngancem bakal sita semua fasilitas gue. Gue harus sempurna, atau gue nggak dianggap.'",
+      text: "Salsa menelepon dengan suara tinggi menahan tangis, lalu membanting HP-nya ke lantai sampai casingnya mental. Dia melihatmu dan langsung membuang muka.\n\n'Apa lo liat-liat - !' bentaknya, tapi air mata mengalir deras. 'Nilai gue turun satu poin. Satu poin! Dan bokap gue udah ngancem bakal sita semua fasilitas gue. Gue harus sempurna, atau gue nggak dianggap.'",
       choices: [
         { text: "'Nilai bukan segalanya, Sal. Lo lebih dari angka.'", nextId: "EP5_INTRO", delta: { salsa: 2, echo: 1 } },
         { text: "Ambilkan HP-nya dan cek kondisinya.", nextId: "EP5_INTRO", delta: { salsa: 3, echo: 2 } },
@@ -245,7 +245,7 @@
 
     // --- EPISODE 5: YANG INGIN KITA SAMPAIKAN ---
     EP5_INTRO: {
-      text: "EPISODE 5: YANG INGIN KITA SAMPAIKAN\n\nHari terakhir semester. Raport akan dibagikan. Koridor riuh rendah, tapi kepalamu bising oleh satu suara.\n\nEcho bersuara keras, lebih keras dari biasanya: 'Jangan berharap lebih. Nanti sakit. Lihat mereka? Mereka akan melupakanmu saat liburan. Kembali ke cangkangmu. Di sana aman.'\n\nNamun hatimu, yang sudah pernah disentuh orang lain, menolak diam.",
+      text: "EPISODE 5: YANG INGIN KITA SAMPAIKAN\n\nHari terakhir semester. Raport akan dibagikan. Koridor riuh rendah, tapi kepalamu bising oleh satu suara.\n\nEcho bersuara keras, lebih keras dari biasanya: 'Jangan berharap lebih. Nanti sakit. Lihat mereka -  Mereka akan melupakanmu saat liburan. Kembali ke cangkangmu. Di sana aman.'\n\nNamun hatimu, yang sudah pernah disentuh orang lain, menolak diam.",
       choices: [
         { text: "Lawan Echo. Teriak dalam hati: 'GUE MAU BAHAGIA!'", nextId: "EP5_CONFRONTATION", delta: { echo: 5 } },
         { text: "Terima Echo. 'Lo bener. Sendiri itu aman.'", nextId: "FINALE_CHECK", delta: { echo: -5 } },
@@ -253,7 +253,7 @@
       ]
     },
     EP5_CONFRONTATION: {
-      text: "Kamu berhenti di tengah koridor. Menutup mata. Mengambil napas panjang.\n\n'Gue nggak butuh aman,' batinmu melawan. 'Gue butuh hidup. Gue butuh rasa sakit, rasa senang, rasa kecewa. Itu artinya gue manusia.'\n\nEcho terdiam. Suaranya mengecil, berubah dari monster menjadi anak kecil yang ketakutan. 'Tapi... kalau kita terluka gimana?'",
+      text: "Kamu berhenti di tengah koridor. Menutup mata. Mengambil napas panjang.\n\n'Gue nggak butuh aman,' batinmu melawan. 'Gue butuh hidup. Gue butuh rasa sakit, rasa senang, rasa kecewa. Itu artinya gue manusia.'\n\nEcho terdiam. Suaranya mengecil, berubah dari monster menjadi anak kecil yang ketakutan. 'Tapi... kalau kita terluka gimana - '",
       choices: [
         { text: "'Kita sembuhin bareng-bareng.'", nextId: "FINALE_CHECK", delta: { echo: 5 } },
         { text: "'Itu risiko yang gue ambil.'", nextId: "FINALE_CHECK", delta: { echo: 4 } }
@@ -278,7 +278,7 @@
       choices: [{ text: "Selesai.", nextId: "BEGIN", delta: {} }, { text: "Replay.", nextId: "BEGIN", delta: {} }]
     },
     END_CONNECTED: {
-      text: "FINALE: CONNECTED\n\n'Woy! Jadi nggak nonton?' Nara melambai dari kejauhan. Dimas dan Salsa sudah menunggu di gerbang sekolah dengan tiket di tangan.\n\nKamu berlari menghampiri mereka. Tawa kalian pecah di udara sore yang lembab. Kamu merasa... terlihat. Kamu merasa menjadi bagian dari sesuatu.\n\nEcho diam. Benar-benar diam. Atau mungkin, suaranya kini telah berpadu dengan suara tawa teman-temanmu, menjadi harmoni yang indah. Kamu tidak sendirian lagi.",
+      text: "FINALE: CONNECTED\n\n'Woy! Jadi nggak nonton - ' Nara melambai dari kejauhan. Dimas dan Salsa sudah menunggu di gerbang sekolah dengan tiket di tangan.\n\nKamu berlari menghampiri mereka. Tawa kalian pecah di udara sore yang lembab. Kamu merasa... terlihat. Kamu merasa menjadi bagian dari sesuatu.\n\nEcho diam. Benar-benar diam. Atau mungkin, suaranya kini telah berpadu dengan suara tawa teman-temanmu, menjadi harmoni yang indah. Kamu tidak sendirian lagi.",
       choices: [{ text: "Selesai.", nextId: "BEGIN", delta: {} }, { text: "Replay.", nextId: "BEGIN", delta: {} }]
     },
     END_AMBIGUOUS: {
@@ -334,7 +334,7 @@
       // Handle Finale Logic
       if (nodeId === "FINALE_CHECK") {
         const endingNodeId = this.gameState.determineEnding();
-        return this.requestStoryBeat(endingNodeId);
+        nodeId = endingNodeId;
       }
 
       const node = STORY_TREE[nodeId] || STORY_TREE.BEGIN;
@@ -344,10 +344,11 @@
 
       return {
         response: node.text,
-        prompt: "Apa yang kamu lakukan?",
+        prompt: "Apa yang kamu lakukan - ",
         scene: "static",
         relationship_delta: 0,
-        choices: choices
+        choices: choices,
+        id: nodeId
       };
     }
 
@@ -363,15 +364,18 @@
       logEl,
       choicesEl,
       statusEl,
-      notificationEl
+      notificationEl,
+      progressEl
     }) {
       this.logEl = logEl;
       this.choicesEl = choicesEl;
       this.statusEl = statusEl;
       this.notificationEl = notificationEl;
+      this.progressEl = progressEl;
       this.awaitingChoice = false;
       this.currentChoices = [];
       this.choiceHandler = null;
+      this.lastChoiceText = "";
     }
 
     addMessage(text, role = "game") {
@@ -379,7 +383,7 @@
       div.className = "msg " + role;
       div.textContent = text;
       this.logEl.appendChild(div);
-      this.logEl.scrollTop = this.logEl.scrollHeight;
+      this.scrollToBottom();
     }
 
     showNotification(text) {
@@ -393,6 +397,15 @@
 
     setStatus(text) {
       this.statusEl.textContent = text;
+    }
+
+    setProgress(text) {
+      if (!this.progressEl) return;
+      this.progressEl.textContent = text;
+    }
+
+    setLastChoice(choiceText) {
+      this.lastChoiceText = choiceText || "";
     }
 
     renderChoices(choices) {
@@ -412,6 +425,10 @@
         button.type = "button";
         button.className = "choice-btn";
         button.textContent = `${index + 1}. ${choiceText}`;
+        if (this.lastChoiceText === choiceText) {
+          button.classList.add("last-picked");
+          button.setAttribute("aria-pressed", "true");
+        }
         button.addEventListener("click", () => {
           if (this.choiceHandler) {
             this.choiceHandler(index, this.currentChoices[index]);
@@ -420,6 +437,7 @@
         fragment.appendChild(button);
       });
       this.choicesEl.appendChild(fragment);
+      this.scrollToBottom();
     }
 
     clearChoices(message = "Echo is thinking...") {
@@ -436,6 +454,11 @@
     isAwaitingChoice() {
       return this.awaitingChoice;
     }
+
+    scrollToBottom() {
+      if (!this.logEl) return;
+      this.logEl.scrollTop = this.logEl.scrollHeight;
+    }
   }
   class EchoStoryApp {
     constructor() {
@@ -444,7 +467,8 @@
         logEl: document.getElementById("log"),
         choicesEl: document.getElementById("choices"),
         statusEl: document.getElementById("status"),
-        notificationEl: document.getElementById("notification-area")
+        notificationEl: document.getElementById("notification-area"),
+        progressEl: document.getElementById("progress-chip")
       });
       this.engine = new StoryEngine({
         gameState: this.gameState
@@ -465,6 +489,7 @@
       
       this.ui.clearChoices("Echo is considering your choice...");
       this.ui.addMessage(`You pick: ${choiceText}`, "player");
+      this.ui.setLastChoice(choiceText);
       this.gameState.rememberChoice(choiceText);
       
       // Get the next node ID from the engine based on the choice index
@@ -501,9 +526,12 @@
         
         this.ui.addMessage(payload.response, "game");
         this.ui.renderChoices(payload.choices);
+        this.ui.setProgress(this.deriveProgressLabel(payload.id || nodeId));
+        this.ui.scrollToBottom();
       } catch (error) {
         console.error(error);
         this.ui.addMessage("Story engine error: " + error.message, "system");
+        this.ui.showNotification("Koneksi cerita terganggu. Coba lagi.");
         this.ui.renderChoices(["Retry"]);
       } finally {
         this.isProcessingTurn = false;
@@ -514,9 +542,42 @@
     startStory() {
       this.ui.addMessage("You step into SMA Harapan Bangsa and breathe in the humid morning air.", "game");
       this.ui.setStatus("Echo is setting the scene...");
+      this.ui.setProgress(this.deriveProgressLabel("BEGIN"));
       this.runStoryTurn("BEGIN");
+    }
+
+    deriveProgressLabel(nodeId) {
+      if (!nodeId) return "Episode";
+      const episodeMatch = nodeId.match(/EP(\d+)/);
+      const episode = episodeMatch ? `Episode ${episodeMatch[1]}` : nodeId === "BEGIN" ? "Episode 1" : "Finale";
+      const map = {
+        BEGIN: "Gerbang",
+        EP1_CORRIDOR: "Koridor",
+        EP1_CORRIDOR_SHY: "Koridor",
+        EP1_CORRIDOR_ISOLATED: "Koridor",
+        EP1_CORRIDOR_FRIENDLY: "Koridor",
+        EP1_CLASS: "Kelas",
+        EP1_CLASS_WITH_NARA: "Kelas",
+        EP1_CLASS_INTERACTION: "Kelas",
+        EP1_CLASS_END: "Gerbang",
+        EP2_INTRO: "Perpustakaan",
+        EP3_INTRO: "Rumah",
+        EP3_ROOM: "Kamar",
+        EP4_INTRO: "Atap",
+        EP5_INTRO: "Koridor",
+        FINALE_CHECK: "Finale",
+        END_SOFT_HEALING: "Finale",
+        END_CONNECTED: "Finale",
+        END_AMBIGUOUS: "Finale",
+        END_ISOLATED: "Finale"
+      };
+      const location = map[nodeId] || nodeId.replace(/_/g, " ").toLowerCase();
+      return `${episode} - ${location.charAt(0).toUpperCase()}${location.slice(1)}`;
     }
   }
 
   new EchoStoryApp();
 })();
+
+
+
