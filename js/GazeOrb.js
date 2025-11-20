@@ -158,7 +158,7 @@ class GazeOrb {
     }
 
     drawProgressIndicator(centerX, centerY) {
-        const GAZE_TIME_TO_SELECT = 90; // 1.5 seconds at 60fps
+        const GAZE_TIME_TO_SELECT = 60; // 1 second at 60fps
         let angle = map(this.timer, 0, GAZE_TIME_TO_SELECT, 0, TWO_PI);
         
         noFill();
@@ -175,7 +175,7 @@ class GazeOrb {
     }
 
     isSelected() {
-        const GAZE_TIME_TO_SELECT = 90; // 1.5 seconds at 60fps
+        const GAZE_TIME_TO_SELECT = 60; // 1 second at 60fps
         return this.timer > GAZE_TIME_TO_SELECT;
     }
 
