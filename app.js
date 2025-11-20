@@ -321,6 +321,10 @@
       if (echo >= 5) return "END_SOFT_HEALING";
       return "END_AMBIGUOUS";
     }
+    
+    getRelationships() {
+      return { ...this.relationship };
+    }
   }
 
   class StoryEngine {

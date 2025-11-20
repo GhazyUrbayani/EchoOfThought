@@ -349,6 +349,22 @@ class EchoOfThoughtGame {
 
     async startStoryFlow() {
         if (!this.storyEngine || this.storyStarted) return;
+        
+        // Wait for story engine to be ready
+        let retries = 0;
+        while (!this.storyEngine && retries < 10) {
+            console.log("Waiting for story engine...");
+            await new Promise(resolve => setTimeout(resolve, 100));
+            this.storyEngine = window.EchoStory ? new window.EchoStory.StoryEngine({ gameState: this.storyState }) : null;
+            retries++;
+        }
+        
+        if (!this.storyEngine) {
+            console.error("Story engine failed to load after retries");
+            this.storyText = "Error: Story engine tidak ditemukan. Refresh halaman.";
+            return;
+        }
+        
         this.storyStarted = true;
         await this.loadStoryNode("BEGIN");
     }
@@ -356,7 +372,16 @@ class EchoOfThoughtGame {
     async loadStoryNode(nodeId) {
         if (!this.storyEngine) {
             console.error("Story engine not initialized");
-            return;
+            this.storyText = "Error: Story engine belum siap. Tunggu sebentar...";
+            
+            // Try to reinitialize
+            if (window.EchoStory) {
+                this.storyState = new window.EchoStory.GameState();
+                this.storyEngine = new window.EchoStory.StoryEngine({ gameState: this.storyState });
+                console.log("Story engine reinitialized");
+            } else {
+                return;
+            }
         }
         
         this.storyLoading = true;
@@ -370,6 +395,8 @@ class EchoOfThoughtGame {
             this.storyText = payload.response;
             this.storyChoices = this.storyEngine.currentChoices || [];
             this.currentNodeId = payload.id || nodeId;
+            
+            console.log("Loaded node:", nodeId, "Choices:", this.storyChoices.length);
             
             // Check if this is ending node BEFORE applying to orbs
             if (this.currentNodeId && this.currentNodeId.startsWith('END_')) {
