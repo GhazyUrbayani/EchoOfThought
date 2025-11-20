@@ -88,7 +88,8 @@ class GazeOrb {
         noStroke();
         fill(242, 242, 242);
         textAlign(CENTER, CENTER);
-        textSize(16);
+        textFont('Press Start 2P');
+        textSize(18);
         if (typeof textWrap === "function") {
             textWrap(WORD);
         }
@@ -114,7 +115,8 @@ class GazeOrb {
         
         fill(56, 208, 229);
         noStroke();
-        textSize(20);
+        textFont('Press Start 2P');
+        textSize(22);
         let percent = Math.floor((this.timer / GAZE_TIME_TO_SELECT) * 100);
         text(percent + '%', centerX, centerY + 60);
     }

@@ -76,12 +76,13 @@ class CalibrationManager {
 
         // Draw instruction text
         fill(242, 242, 242);
-        textSize(20);
+        textFont('Press Start 2P');
+        textSize(22);
         textAlign(CENTER, CENTER);
         let progress = this.getProgress();
         text(`KALIBRASI: ${progress.current} / ${progress.total}`, 
              this.windowWidth / 2, this.windowHeight - 80);
-        textSize(14);
+        textSize(16);
         text("TATAP DAN KLIK TITIK CYAN", this.windowWidth / 2, this.windowHeight - 40);
 
         // Draw calibration point

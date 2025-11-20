@@ -38,6 +38,8 @@ html, body {
     background-color: var(--color-bg-dark);
     color: var(--color-text-light);
     font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
+    font-size: 16px;
+    line-height: 1.6;
 }
 
 html::before {

@@ -24,8 +24,17 @@ class EchoOfThoughtGame {
         // Create canvas
         let canvas = createCanvas(windowWidth, windowHeight);
         canvas.parent('main');
+        
+        // Force font settings
         textAlign(CENTER, CENTER);
         textFont('Press Start 2P');
+        textSize(16);
+        noSmooth(); // Pixel-perfect rendering
+        
+        // Fallback to native canvas font if p5 fails
+        if (drawingContext) {
+            drawingContext.font = "16px 'Press Start 2P'";
+        }
 
         // Initialize orbs
         this.orbs = [
@@ -46,6 +55,9 @@ class EchoOfThoughtGame {
 
     draw() {
         background(16, 22, 34);
+        
+        // Force font on every frame
+        textFont('Press Start 2P');
 
         // Process video feed if game has started
         if (!this.stateManager.isState('START')) {
@@ -120,7 +132,11 @@ class EchoOfThoughtGame {
         // Header
         noStroke();
         fill(56, 208, 229);
-        textSize(12);
+        textSize(14);
+        textFont("Press Start 2P");
+        if (drawingContext) {
+            drawingContext.font = "14px 'Press Start 2P'";
+        }
         textAlign(LEFT, TOP);
         text("ECHO OF THOUGHT", boxX + 14, boxY + 14);
         textAlign(RIGHT, TOP);
@@ -128,22 +144,25 @@ class EchoOfThoughtGame {
 
         // Story text
         textAlign(LEFT, TOP);
-        textSize(13);
-        if (typeof textFont === "function") {
-            textFont("Press Play 2P");
+        textSize(18);
+        textFont("Press Start 2P");
+        
+        // Force font with native canvas API as fallback
+        if (drawingContext) {
+            drawingContext.font = "18px 'Press Start 2P'";
         }
+        
         if (typeof textLeading === "function") {
-            textLeading(20);
+            textLeading(30);
         }
         if (typeof textWrap === "function") {
             textWrap(WORD);
         }
         fill(242, 242, 242);
         text(this.storyText || "Memuat cerita...", boxX + 14, boxY + 40, boxWidth - 28, boxHeight - 48);
-        // Restore font for UI elements
-        if (typeof textFont === "function") {
-            textFont("Press Start 2P");
-        }
+        
+        // Restore font
+        textFont("Press Start 2P");
 
         // Check for selection
         this.orbs.forEach((orb, idx) => {
@@ -155,7 +174,7 @@ class EchoOfThoughtGame {
 
     drawFinalScene() {
         fill(242, 242, 242);
-        textSize(28);
+        textSize(32);
         text('KAMU TELAH MEMILIH:', windowWidth / 2, windowHeight / 2 - 60);
 
         const selectedChoice = this.stateManager.getSelectedChoice();
@@ -176,11 +195,11 @@ class EchoOfThoughtGame {
                 break;
         }
 
-        textSize(40);
+        textSize(48);
         text(selectedChoice, windowWidth / 2, windowHeight / 2 + 20);
 
         // Auto redirect after 3 seconds
-        textSize(16);
+        textSize(20);
         fill(56, 208, 229);
         text("Menuju hasil...", windowWidth / 2, windowHeight * 0.8);
 
