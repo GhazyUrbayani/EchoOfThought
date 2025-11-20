@@ -24,6 +24,10 @@ class EchoOfThoughtGame {
         this.choicesMade = 0;
         this.endgameData = null;
         
+        // Telltale-style notifications
+        this.notifications = [];
+        this.notificationDuration = 180; // 3 seconds at 60fps
+        
         console.log("EchoOfThoughtGame initialized. Story engine:", this.storyEngine ? "OK" : "NOT FOUND");
     }
 
@@ -95,6 +99,9 @@ class EchoOfThoughtGame {
 
         // Draw gaze indicator
         this.drawGazeIndicator();
+        
+        // Draw character status notifications
+        this.drawNotifications();
     }
 
     drawCalibrationScene() {
@@ -314,6 +321,116 @@ class EchoOfThoughtGame {
         }
     }
 
+    drawNotifications() {
+        // Update and draw all active notifications
+        textFont('Press Start 2P');
+        
+        for (let i = this.notifications.length - 1; i >= 0; i--) {
+            const notif = this.notifications[i];
+            notif.timer++;
+            
+            // Remove expired notifications
+            if (notif.timer > this.notificationDuration) {
+                this.notifications.splice(i, 1);
+                continue;
+            }
+            
+            // Calculate fade effect
+            const fadeInDuration = 15;
+            const fadeOutDuration = 30;
+            let alpha = 255;
+            
+            if (notif.timer < fadeInDuration) {
+                alpha = map(notif.timer, 0, fadeInDuration, 0, 255);
+            } else if (notif.timer > this.notificationDuration - fadeOutDuration) {
+                alpha = map(notif.timer, this.notificationDuration - fadeOutDuration, this.notificationDuration, 255, 0);
+            }
+            
+            // Box dimensions
+            const padding = 10;
+            const boxWidth = 320;
+            const boxHeight = 35;
+            
+            // Position at top-right corner (stacked vertically)
+            const x = windowWidth - boxWidth - 30;
+            const y = 30 + (this.notifications.length - 1 - i) * (boxHeight + padding + 5);
+            
+            // Background box
+            fill(10, 18, 32, alpha * 0.9);
+            noStroke();
+            rect(x, y, boxWidth, boxHeight, 0);
+            
+            // Border
+            stroke(notif.color[0], notif.color[1], notif.color[2], alpha);
+            strokeWeight(2);
+            noFill();
+            rect(x, y, boxWidth, boxHeight, 0);
+            
+            // Icon
+            noStroke();
+            fill(notif.color[0], notif.color[1], notif.color[2], alpha);
+            textAlign(LEFT, TOP);
+            textSize(10);
+            text(notif.icon, x + 8, y + 8);
+            
+            // Text - with proper wrapping
+            fill(242, 242, 242, alpha);
+            textSize(10);
+            textAlign(LEFT, TOP);
+            const textX = x + 25;
+            const textY = y + 8;
+            const textWidth = boxWidth - 35;
+            
+            // Draw text with wrapping
+            if (drawingContext) {
+                drawingContext.font = "10px 'Press Start 2P'";
+            }
+            text(notif.text, textX, textY, textWidth, boxHeight - 16);
+        }
+        
+        // Restore defaults
+        textAlign(CENTER, CENTER);
+    }
+
+    showNotification(text, characterName = null) {
+        // Determine color and icon based on character or content
+        let color = [56, 208, 229]; // Cyan default
+        let icon = "◆";
+        
+        if (characterName) {
+            switch(characterName.toLowerCase()) {
+                case 'nara':
+                    color = [255, 180, 100]; // Warm orange
+                    icon = "♥";
+                    break;
+                case 'dimas':
+                    color = [150, 150, 255]; // Soft blue
+                    icon = "✦";
+                    break;
+                case 'salsa':
+                    color = [255, 100, 150]; // Pink
+                    icon = "★";
+                    break;
+                case 'echo':
+                    color = [100, 255, 200]; // Mint green
+                    icon = "◈";
+                    break;
+            }
+        }
+        
+        this.notifications.push({
+            text: text,
+            color: color,
+            icon: icon,
+            timer: 0
+        });
+        
+        // Limit to 3 notifications on screen
+        if (this.notifications.length > 3) {
+            this.notifications.shift();
+        }
+    }
+
     handleMousePress() {
         if (this.stateManager.isState('CALIBRATING')) {
             this.webgazerManager.recordClick(mouseX, mouseY);
@@ -448,6 +565,43 @@ class EchoOfThoughtGame {
         }
         
         const choiceObj = this.storyChoices[index];
+        
+        // Show notifications based on delta
+        if (choiceObj.delta) {
+            const delta = choiceObj.delta;
+            
+            if (delta.nara) {
+                if (delta.nara > 0) {
+                    this.showNotification("Nara akan mengingat ini.", "nara");
+                } else if (delta.nara < 0) {
+                    this.showNotification("Nara merasa diabaikan.", "nara");
+                }
+            }
+            
+            if (delta.dimas) {
+                if (delta.dimas > 0) {
+                    this.showNotification("Dimas merasa didengar.", "dimas");
+                } else if (delta.dimas < 0) {
+                    this.showNotification("Dimas terluka.", "dimas");
+                }
+            }
+            
+            if (delta.salsa) {
+                if (delta.salsa > 0) {
+                    this.showNotification("Salsa menghargai itu.", "salsa");
+                } else if (delta.salsa < 0) {
+                    this.showNotification("Salsa kecewa padamu.", "salsa");
+                }
+            }
+            
+            if (delta.echo) {
+                if (delta.echo > 0) {
+                    this.showNotification("Echo: 'Kau terbuka...'", "echo");
+                } else if (delta.echo < 0) {
+                    this.showNotification("Echo: 'Tutup dirimu.'", "echo");
+                }
+            }
+        }
         
         // Apply delta if exists
         if (choiceObj.delta && this.storyState) {
