@@ -25,11 +25,8 @@ Aplikasi ini dirancang untuk menciptakan pengalaman storytelling yang unik dan i
 ### ✨ Fitur Utama
 
 #### 1. Eye-Gaze Selection System
-Interaksi 100% bebas-tangan menggunakan **WebGazer.js**. Pilihan dialog dipilih dengan menatap orb visual yang merepresentasikan setiap opsi. Sistem dwell-time (120 frame / ~2 detik) memastikan pemilihan yang disengaja dan akurat.
 
-<p align="center">
-  <img src="https://placehold.co/600x300/2d2d2d/ffffff?text=Demo+Gaze+Interaction+(Ganti+dengan+GIF)" alt="Demo Interaksi Tatapan">
-</p>
+Interaksi 100% bebas-tangan menggunakan **WebGazer.js**. Pilihan dialog dipilih dengan menatap orb visual yang merepresentasikan setiap opsi. Sistem dwell-time (120 frame / ~2 detik) memastikan pemilihan yang disengaja dan akurat.
 
 #### 2. Dynamic Story Engine
 Cerita bercabang dengan 5 episode dan 4 ending berbeda berdasarkan pilihan pemain. Setiap keputusan memengaruhi relationship scores dengan karakter (Nara, Dimas, Salsa) dan Echo score yang menentukan akhir cerita.
