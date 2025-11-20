@@ -2,648 +2,360 @@
   "use strict";
 
   const CLIENT_NAME = "Echo of Thought Prototype";
-  const PROVIDER_CHOICE_STORAGE = "echo-of-thought-provider-choice";
-  const API_KEY_MAP_STORAGE = "echo-of-thought-api-key-map";
-  const MAX_HISTORY_MESSAGES = 12;
-  const REQUIRED_PAYLOAD_KEYS = ["response", "prompt", "scene", "relationship_delta", "flags", "choices"];
-  const DEFAULT_CHOICE_FALLBACK = "Take a breath and observe the room.";
-  const REFERER_HEADER = (() => {
-    try {
-      const origin = window.location.origin;
-      if (origin && origin !== "null") {
-        return origin;
-      }
-      const href = window.location.href;
-      return href && href.startsWith("http") ? href : "https://openrouter.ai";
-    } catch (_) {
-      return "https://openrouter.ai";
-    }
-  })();
-  const LEGACY_STORAGE_KEYS = [
-    { storage: "echo-of-thought-openrouter-key", provider: "openrouter" },
-    { storage: "echo-of-thought-groq-key", provider: "groq" }
-  ];
-  const PROVIDERS = {
-    openrouter: {
-      id: "openrouter",
-      displayName: "OpenRouter",
-      endpoint: "https://openrouter.ai/api/v1/chat/completions",
-      model: "meta-llama/llama-3.3-70b-instruct",
-      keyLabel: "OpenRouter API Key",
-      placeholder: "sk-or-...",
-      hint: "Get one at openrouter.ai (stored locally only).",
-      headers: (key) => ({
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${key}`,
-        "HTTP-Referer": REFERER_HEADER,
-        "X-Title": CLIENT_NAME
-      })
-    },
-    groq: {
-      id: "groq",
-      displayName: "Groq",
-      endpoint: "https://api.groq.com/openai/v1/chat/completions",
-      model: "llama-3.1-8b-instant",
-      keyLabel: "Groq API Key",
-      placeholder: "gsk_...",
-      hint: "Generate at console.groq.com (stored locally only).",
-      headers: (key) => ({
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${key}`
-      })
-    },
-    openai: {
-      id: "openai",
-      displayName: "OpenAI",
-      endpoint: "https://api.openai.com/v1/chat/completions",
-      model: "gpt-3.5-turbo",
-      keyLabel: "OpenAI API Key",
-      placeholder: "sk-...",
-      hint: "Sign up at platform.openai.com (stored locally only).",
-      headers: (key) => ({
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${key}`
-      })
-    }
-  };
-  const WORLD_BIBLE = {
-    premise: "Late-summer transfer student navigating first week at Shibuya High.",
-    location: "Tokyo, modern day. Events stay inside campus until explicitly moved.",
-    cast: ["Player", "Yuta", "homeroom teacher (Ms. Kuroda)", "background classmates"],
-    tone: "Grounded YA drama: intimate, sensory, no fantasy elements or sudden genre shifts.",
-    forbidden: [
-      "new supernatural powers",
-      "new characters speaking without prior approval",
-      "time jumps outside the school day",
-      "locations outside Shibuya High",
-      "romantic interactions that go beyond PG-13 (no explicit sexual content, no physical intimacy descriptions beyond holding hands or a brief hug)"
-    ]
-  };
-  const SCENE_RULES = {
-    intro: {
-      location: "Homeroom 2-A, moments before first bell.",
-      cast: ["Player", "Yuta", "teacher at podium (mostly observing)", "background classmates"],
-      mood: "buzzy, first-day nerves, hopeful curiosity.",
-      allowedActions: ["greet yuta", "ignore yuta", "observe classroom", "prepare for teacher", "share feelings"],
-      notes: [
-        "Yuta sits near the window; he already waved first.",
-        "Teacher is about to start roll call but has not spoken yet."
+  
+  const STORY_TREE = {
+    // --- EPISODE 1: HARI PERTAMA ---
+    BEGIN: {
+      text: "EPISODE 1: HARI PERTAMA\n\nGerbang SMA Harapan Bangsa menjulang tinggi, seolah menelan langit Jakarta yang abu-abu. Suara klakson dan tawa siswa lain berdengung di telingamu, tapi ada satu suara yang lebih jelas.\n\n'Jangan mencolok,' bisik Echo, suara di kepalamu yang selalu waspada. 'Jadilah biasa saja. Aman itu nyaman. Jangan biarkan mereka melihatmu yang sebenarnya.'\n\nKamu berdiri di ambang gerbang, seragam putih abu-abu masih kaku dan berbau toko.",
+      choices: [
+        { text: "Tarik napas dalam, paksa kaki melangkah.", nextId: "EP1_CORRIDOR", delta: { echo: 1 } },
+        { text: "Tundukkan kepala, hindari tatapan siapa pun.", nextId: "EP1_CORRIDOR_SHY", delta: { echo: -1 } },
+        { text: "Pasang earphone, blokir dunia luar.", nextId: "EP1_CORRIDOR_ISOLATED", delta: { echo: -2 } },
+        { text: "Senyum tipis pada satpam, mencoba ramah.", nextId: "EP1_CORRIDOR_FRIENDLY", delta: { echo: 2 } }
       ]
     },
-    classroom: {
-      location: "Same homeroom during math lecture.",
-      cast: ["Player", "Yuta", "teacher"],
-      mood: "quiet chalk sounds, whispered rebellion.",
-      allowedActions: ["listen to teacher", "whisper to yuta", "pass note", "focus on notebook", "ask to repeat question"],
-      notes: [
-        "Class is ongoing; keep voices low.",
-        "No other students jump into the conversation without prompting."
+    EP1_CORRIDOR: {
+      text: "Kamu berjalan menyusuri koridor utama. Lantai keramik memantulkan bayangan siswa-siswa yang berlarian. Tiba-tiba, bahumu tertabrak keras. Buku-buku berjatuhan dengan suara 'brukk' yang nyaring.\n\nDi depanmu, seorang gadis dengan kacamata bulat besar tampak panik memunguti novel-novel tebalnya. Itu Nara. Dia bergumam, 'Aduh, mati gue, telat, telat...'",
+      choices: [
+        { text: "Berlutut dan bantu pungut bukunya.", nextId: "EP1_MEET_NARA", delta: { nara: 2, echo: 1 } },
+        { text: "Gumamkan 'sorry' pelan dan lanjut jalan.", nextId: "EP1_IGNORE_NARA", delta: { nara: 0, echo: -1 } },
+        { text: "Diam saja, tunggu dia selesai.", nextId: "EP1_IGNORE_NARA", delta: { nara: -1, echo: 0 } },
+        { text: "Salahkan lantai. 'Licin banget ya?'", nextId: "EP1_JOKE_NARA", delta: { nara: 1, echo: 1 } }
       ]
     },
-    hallway: {
-      location: "Second-floor hallway right after class.",
-      cast: ["Player", "Yuta", "passing students (background)"],
-      mood: "echoing footsteps, adrenaline from recent class.",
-      allowedActions: ["follow yuta", "ask about club", "head to locker", "excuse yourself"],
-      notes: ["Everyone is moving toward lunch; no teachers nearby."]
+    EP1_CORRIDOR_SHY: {
+      text: "Kamu berjalan cepat, mata terpaku pada sepatu. 'Bagus,' kata Echo. 'Tak ada yang memperhatikan.' Tiba-tiba—BRUK! Kamu menabrak seseorang. Buku berhamburan. Seorang gadis berkacamata (Nara) menatapmu kaget.",
+      choices: [
+        { text: "Bantu dia tanpa bicara.", nextId: "EP1_MEET_NARA", delta: { nara: 1, echo: 0 } },
+        { text: "Lari ke kelas karena panik.", nextId: "EP1_IGNORE_NARA", delta: { nara: -1, echo: -2 } },
+        { text: "Minta maaf berkali-kali.", nextId: "EP1_MEET_NARA", delta: { nara: 2, echo: -1 } }
+      ]
     },
-    default: {
-      location: "Somewhere on campus still during first morning.",
-      cast: ["Player", "Yuta"],
-      mood: "calm but alert.",
-      allowedActions: ["check surroundings", "talk to yuta", "reflect"],
-      notes: ["Stay on school grounds; no surprise visitors."]
+    EP1_CORRIDOR_ISOLATED: {
+      text: "Musik di telingamu meredam dunia, tapi tidak getaran tabrakan itu. Kamu menabrak seorang gadis (Nara). Dia bicara sesuatu, tapi kamu tidak dengar karena earphone-mu.",
+      choices: [
+        { text: "Lepas earphone, tanya dia bicara apa.", nextId: "EP1_MEET_NARA", delta: { nara: 1, echo: 1 } },
+        { text: "Abaikan, jalan terus.", nextId: "EP1_IGNORE_NARA", delta: { nara: -2, echo: -2 } },
+        { text: "Bantu pungut buku sambil tetap pakai earphone.", nextId: "EP1_MEET_NARA", delta: { nara: 0, echo: -1 } }
+      ]
+    },
+    EP1_CORRIDOR_FRIENDLY: {
+      text: "Satpam membalas senyummu. Sedikit rasa percaya diri tumbuh. Namun, di koridor, kamu tidak sengaja menyenggol seorang gadis (Nara). Buku-bukunya jatuh.",
+      choices: [
+        { text: "Langsung bantu dengan sigap.", nextId: "EP1_MEET_NARA", delta: { nara: 3, echo: 2 } },
+        { text: "Minta maaf sambil tersenyum.", nextId: "EP1_JOKE_NARA", delta: { nara: 2, echo: 1 } },
+        { text: "Tunggu dia bereaksi.", nextId: "EP1_IGNORE_NARA", delta: { nara: 0, echo: 0 } }
+      ]
+    },
+    EP1_MEET_NARA: {
+      text: "'Makasih banget!' Nara tersenyum lebar, matanya menyipit di balik kacamata. 'Gue Nara. Sumpah, gue kira bakal dimarahin kakak kelas tadi.' Dia menepuk debu di roknya. 'Lo anak baru ya? Muka lo asing. Mau gue anter ke kelas?'\n\nEcho bergumam sinis: 'Terlalu ramah. Pasti ada maunya. Jangan terlalu dekat.'",
+      choices: [
+        { text: "'Boleh, gue butuh bantuan.' (Terima)", nextId: "EP1_CLASS_WITH_NARA", delta: { nara: 2, echo: 1 } },
+        { text: "'Gue bisa cari sendiri.' (Tolak)", nextId: "EP1_CLASS", delta: { nara: -1, echo: -1 } },
+        { text: "Senyum dan angguk saja.", nextId: "EP1_CLASS_WITH_NARA", delta: { nara: 1, echo: 0 } },
+        { text: "Ragu-ragu, lihat sekeliling.", nextId: "EP1_CLASS", delta: { nara: 0, echo: 0 } }
+      ]
+    },
+    EP1_JOKE_NARA: {
+      text: "Nara tertawa renyah, suaranya memantul di koridor. 'Iya kan? Lantai sekolah ini emang konspirasi buat bikin murid jatuh!' Suasana cair seketika. Dia mengulurkan tangan. 'Gue Nara. Lo?'",
+      choices: [
+        { text: "Sebut namamu dan jabat tangannya.", nextId: "EP1_CLASS_WITH_NARA", delta: { nara: 3, echo: 2 } },
+        { text: "Sebut nama tanpa jabat tangan.", nextId: "EP1_CLASS_WITH_NARA", delta: { nara: 1, echo: 0 } },
+        { text: "Hanya senyum.", nextId: "EP1_CLASS", delta: { nara: 0, echo: 0 } }
+      ]
+    },
+    EP1_IGNORE_NARA: {
+      text: "Kamu meninggalkan Nara yang masih membereskan bukunya. Ada rasa bersalah kecil, tapi Echo membenarkan: 'Lebih baik tidak terlibat.'\n\nKamu sampai di kelas XI-IPS 2. Suasana riuh. Kamu memilih bangku kosong di belakang.",
+      choices: [
+        { text: "Duduk dan amati sekitar.", nextId: "EP1_CLASS_OBSERVE", delta: { echo: 0 } },
+        { text: "Keluarkan HP, pura-pura sibuk.", nextId: "EP1_CLASS_PHONE", delta: { echo: -1 } }
+      ]
+    },
+    EP1_CLASS_WITH_NARA: {
+      text: "Kamu masuk kelas bersama Nara. Beberapa anak melirik. 'Duduk deket gue aja!' ajak Nara. Dia menunjuk bangku kosong di sebelahnya. Di depan kalian, ada Dimas yang sedang mencoret-coret buku sketsa, dan Salsa yang terlihat stres membaca buku paket tebal.",
+      choices: [
+        { text: "Duduk di sebelah Nara.", nextId: "EP1_CLASS_INTERACTION", delta: { nara: 1 } },
+        { text: "Duduk di belakang Dimas.", nextId: "EP1_CLASS_INTERACTION", delta: { dimas: 1 } }
+      ]
+    },
+    EP1_CLASS: {
+      text: "Kamu masuk kelas sendirian. Di depanmu, ada Dimas yang sedang menggambar dengan sangat fokus, seolah dunia di sekitarnya tidak ada. Di sebelahnya, Salsa sedang mengomel pelan pada kalkulatornya.",
+      choices: [
+        { text: "Perhatikan gambar Dimas.", nextId: "EP1_INTERACT_DIMAS", delta: { dimas: 1 } },
+        { text: "Tanya Salsa soal pelajaran.", nextId: "EP1_INTERACT_SALSA", delta: { salsa: 1 } },
+        { text: "Tidur sampai bel masuk.", nextId: "EP1_CLASS_END", delta: { echo: -1 } }
+      ]
+    },
+    EP1_CLASS_OBSERVE: {
+      text: "Dari belakang, kamu melihat dinamika kelas. Ada kelompok populer, ada yang tidur. Dimas, cowok di depanmu, menggambar sesuatu yang gelap dan rumit. Salsa, cewek di sebelahnya, terlihat perfeksionis, menghapus tulisannya berkali-kali sampai kertasnya nyaris sobek.",
+      choices: [
+        { text: "Tegur Dimas: 'Gambar apa?'", nextId: "EP1_INTERACT_DIMAS", delta: { dimas: 1, echo: 1 } },
+        { text: "Diam saja.", nextId: "EP1_CLASS_END", delta: { echo: 0 } }
+      ]
+    },
+    EP1_CLASS_PHONE: {
+      text: "Layar HP menyala, tapi kamu tidak benar-benar melihat isinya. Hanya scrolling tanpa tujuan untuk menghindari kontak mata. Echo puas: 'Begini lebih aman.'",
+      choices: [
+        { text: "Tunggu bel.", nextId: "EP1_CLASS_END", delta: { echo: -1 } }
+      ]
+    },
+    EP1_INTERACT_DIMAS: {
+      text: "Dimas tersentak kaget saat kamu mendekat. Dia buru-buru menutup buku sketsanya. 'Eh... nggak. Cuma coret-coret,' gumamnya pelan, matanya tidak berani menatapmu. Tapi sekilas kamu melihat gambar mata yang sangat realistis.",
+      choices: [
+        { text: "'Keren kok gambarnya.'", nextId: "EP1_CLASS_END", delta: { dimas: 2, echo: 1 } },
+        { text: "'Sorry ganggu.'", nextId: "EP1_CLASS_END", delta: { dimas: 0, echo: 0 } },
+        { text: "Paksa lihat lagi.", nextId: "EP1_CLASS_END", delta: { dimas: -1, echo: -1 } }
+      ]
+    },
+    EP1_INTERACT_SALSA: {
+      text: "Salsa menoleh tajam. 'Jadwal? Ada di papan tulis kan?' nadanya ketus. Dia menghela napas panjang, lalu melembut sedikit. 'Sorry. Gue lagi pusing sama materi Fisika ini. Lo anak baru ya?'",
+      choices: [
+        { text: "'Iya. Santai aja.'", nextId: "EP1_CLASS_END", delta: { salsa: 1, echo: 1 } },
+        { text: "'Galak banget.'", nextId: "EP1_CLASS_END", delta: { salsa: -2, echo: 1 } },
+        { text: "Mundur perlahan.", nextId: "EP1_CLASS_END", delta: { salsa: 0, echo: -1 } }
+      ]
+    },
+    EP1_CLASS_INTERACTION: {
+      text: "Pelajaran dimulai. Bu Rina menjelaskan Sejarah. Membosankan. Nara diam-diam mengoper kertas kecil padamu. Isinya gambar kartun guru yang lucu.",
+      choices: [
+        { text: "Tahan tawa dan balas gambar.", nextId: "EP1_CLASS_END", delta: { nara: 2 } },
+        { text: "Abaikan kertasnya.", nextId: "EP1_CLASS_END", delta: { nara: -1 } },
+        { text: "Senyum saja.", nextId: "EP1_CLASS_END", delta: { nara: 1 } }
+      ]
+    },
+    EP1_CLASS_END: {
+      text: "Bel pulang berbunyi nyaring. Langit di luar sudah gelap gulita. Hujan deras turun tiba-tiba, seperti menumpahkan seluruh air dari langit. Semua siswa tertahan di gerbang sekolah.\n\nKamu melihat Nara menggigil kedinginan. Dimas berdiri diam menatap hujan. Salsa sibuk menelepon jemputan dengan panik.",
+      choices: [
+        { text: "Tawarkan payung ke Nara.", nextId: "EP2_INTRO", delta: { nara: 3, echo: 2 } },
+        { text: "Berdiri diam di sebelah Dimas, berbagi sunyi.", nextId: "EP2_INTRO", delta: { dimas: 2, echo: 1 } },
+        { text: "Tanya Salsa butuh tebengan online?", nextId: "EP2_INTRO", delta: { salsa: 2, echo: 1 } },
+        { text: "Terobos hujan sendirian. Lari.", nextId: "EP2_INTRO", delta: { echo: -2 } }
+      ]
+    },
+
+    // --- EPISODE 2: KATA YANG TAK TERUCAP ---
+    EP2_INTRO: {
+      text: "EPISODE 2: KATA YANG TAK TERUCAP\n\nSeminggu berlalu. Kamu mulai hafal letak kantin dan toilet, tapi belum hafal hati teman-temanmu.\n\nBu Rina memberikan tugas kelompok Sejarah. 'Kalian berempat satu tim,' tunjuknya padamu, Nara, Dimas, dan Salsa.\n\nDi perpustakaan, suasana kaku. Salsa mengetuk-ngetuk pulpen dengan tidak sabar. 'Dimas, lo udah cari bahannya belum sih? Dari tadi diem doang!'",
+      choices: [
+        { text: "Tengahi mereka: 'Sabar Sal, kita cari bareng.'", nextId: "EP2_CONFLICT", delta: { salsa: 1, dimas: 1, echo: 2 } },
+        { text: "Diam dan pura-pura baca buku.", nextId: "EP2_SILENT", delta: { echo: -1 } },
+        { text: "Bela Dimas: 'Jangan ngegas dong.'", nextId: "EP2_DEFEND_DIMAS", delta: { dimas: 3, salsa: -2 } },
+        { text: "Dukung Salsa: 'Iya Dim, kita butuh bahannya.'", nextId: "EP2_SUPPORT_SALSA", delta: { salsa: 3, dimas: -2 } }
+      ]
+    },
+    EP2_CONFLICT: {
+      text: "Kamu mencoba bicara. Suaramu pelan tapi didengar. Salsa menghela napas kasar, 'Oke, sorry. Gue cuma panik. Nilai gue semester lalu turun.'\n\nDimas mengangkat wajahnya sedikit, menatapmu dengan rasa terima kasih. 'Gue... gue sebenernya udah rangkum, tapi belum diketik,' suaranya nyaris tak terdengar.",
+      choices: [
+        { text: "Senyum lega: 'Nah, kan ada progres.'", nextId: "EP3_INTRO", delta: { echo: 1, dimas: 1 } },
+        { text: "Ajak mereka istirahat minum es teh dulu.", nextId: "EP3_INTRO", delta: { nara: 2, salsa: 1, dimas: 1 } },
+        { text: "Langsung bagi tugas mengetik.", nextId: "EP3_INTRO", delta: { salsa: 2, echo: 0 } }
+      ]
+    },
+    EP2_SILENT: {
+      text: "Echo berbisik: 'Bukan urusanmu. Jangan cari masalah.' Kamu menunduk. Salsa membentak Dimas lagi, 'Lo tuh niat sekolah nggak sih?!'\n\nDimas tidak menjawab. Dia berdiri, mengemasi tasnya, dan pergi begitu saja. Nara mengejarnya. Kelompok bubar dengan perasaan tidak enak.",
+      choices: [
+        { text: "Pulang dengan rasa bersalah yang berat.", nextId: "EP3_INTRO", delta: { echo: -2 } },
+        { text: "Chat Nara: 'Gimana Dimas?'", nextId: "EP3_INTRO", delta: { nara: 1 } },
+        { text: "Masa bodoh, kerjakan sendiri.", nextId: "EP3_INTRO", delta: { echo: -3, salsa: 1 } }
+      ]
+    },
+    EP2_DEFEND_DIMAS: {
+      text: "'Dimas udah kerjain bagiannya kok, gue liat tadi,' kamu berbohong demi melindunginya. Dimas kaget, matanya membulat. Salsa cemberut, melipat tangan di dada. 'Oke, awas aja kalo nggak selesai.'\n\nSetelah Salsa pergi ke toilet, Dimas berbisik, 'Makasih...'",
+      choices: [
+        { text: "'Sama-sama. Tapi beneran kerjain ya.'", nextId: "EP3_INTRO", delta: { dimas: 2, echo: 1 } },
+        { text: "Tepuk bahunya dan senyum.", nextId: "EP3_INTRO", delta: { dimas: 3, echo: 2 } }
+      ]
+    },
+    EP2_SUPPORT_SALSA: {
+      text: "'Kita harus ngebut emang, deadline besok,' katamu tegas. Salsa merasa didukung dan mengangguk antusias. 'Tuh dengerin!'\n\nDimas semakin menunduk, tubuhnya terlihat kecil di kursi perpustakaan. Dia tidak bicara sepatah kata pun sampai pertemuan selesai.",
+      choices: [
+        { text: "Lanjut ke Episode 3.", nextId: "EP3_INTRO", delta: { salsa: 2, dimas: -1 } }
+      ]
+    },
+
+    // --- EPISODE 3: RUMAH YANG SUNYI ---
+    EP3_INTRO: {
+      text: "EPISODE 3: RUMAH YANG SUNYI\n\nMalam hari. Kamu pulang ke rumah yang besar tapi terasa kosong. Lampu ruang tengah menyala, tapi tidak ada suara TV atau obrolan.\n\nMakan malam dengan orang tua. Hanya ada suara denting sendok beradu dengan piring keramik. Ayah sibuk dengan tabletnya, Ibu membalas chat di HP.\n\n'Gimana sekolah barumu?' tanya Ibu tiba-tiba, tanpa menoleh dari layarnya.",
+      choices: [
+        { text: "'Biasa aja. Nggak ada yang spesial.'", nextId: "EP3_DINNER_COLD", delta: { echo: -2 } },
+        { text: "'Ada temen baru, namanya Nara. Dia lucu.'", nextId: "EP3_DINNER_WARM", delta: { echo: 2 } },
+        { text: "Angkat bahu saja, malas bicara.", nextId: "EP3_DINNER_COLD", delta: { echo: -1 } },
+        { text: "'Capek. Tugas numpuk.'", nextId: "EP3_DINNER_COLD", delta: { echo: -1 } }
+      ]
+    },
+    EP3_DINNER_COLD: {
+      text: "Ibu hanya mengangguk pelan. 'Baguslah kalau nggak ada masalah. Jangan bikin ulah ya.'\n\nPercakapan mati sebelum sempat hidup. Echo berbisik di telingamu, suaranya dingin: 'Lihat? Mereka tidak benar-benar ingin tahu tentangmu. Mereka cuma basa-basi.'",
+      choices: [
+        { text: "Masuk kamar dan kunci pintu.", nextId: "EP3_ROOM", delta: { echo: -1 } },
+        { text: "Nyalakan TV keras-keras untuk memecah sunyi.", nextId: "EP3_ROOM", delta: { echo: 0 } },
+        { text: "Menangis diam-diam di kamar mandi.", nextId: "EP3_ROOM", delta: { echo: 1 } }
+      ]
+    },
+    EP3_DINNER_WARM: {
+      text: "Ibu meletakkan HP-nya sebentar. Dia menatapmu, benar-benar menatapmu. 'Oh ya? Bagus dong kalau udah punya temen. Ajak main ke rumah kapan-kapan.'\n\nSenyum tipis terbit di wajahnya. Itu koneksi kecil, sangat rapuh, tapi terasa hangat di dada.",
+      choices: [
+        { text: "Cerita lebih banyak soal tugas kelompok.", nextId: "EP3_ROOM", delta: { echo: 3 } },
+        { text: "Sudahi sebelum canggung, lalu makan.", nextId: "EP3_ROOM", delta: { echo: 1 } },
+        { text: "Tanya balik: 'Ibu gimana kerjanya?'", nextId: "EP3_ROOM", delta: { echo: 2 } }
+      ]
+    },
+    EP3_ROOM: {
+      text: "Di kamarmu, kamu menatap cermin. Bayanganmu sendiri menatap balik. Sunyi sekali.\n\nEcho: 'Kau sendirian. Selalu begitu. Dan itu lebih baik. Tidak ada yang bisa menyakitimu di sini.'",
+      choices: [
+        { text: "Buka HP, lihat foto profil teman-teman.", nextId: "EP4_INTRO", delta: { echo: 1 } },
+        { text: "Matikan lampu, tidur dalam gelap.", nextId: "EP4_INTRO", delta: { echo: -2 } },
+        { text: "Bisikkan pada diri sendiri: 'Gue nggak mau sendiri.'", nextId: "EP4_INTRO", delta: { echo: 3 } }
+      ]
+    },
+
+    // --- EPISODE 4: SAAT KITA SALING MEMBUKA ---
+    EP4_INTRO: {
+      text: "EPISODE 4: SAAT KITA SALING MEMBUKA\n\nBeberapa minggu kemudian. Ujian semester semakin dekat. Tekanan di sekolah terasa mencekik.\n\nKamu naik ke atap sekolah untuk mencari udara segar. Di sana, di sudut yang tersembunyi tangki air, kamu menemukan seseorang sedang duduk memeluk lutut. Bahunya berguncang.",
+      choices: [
+        { text: "Itu Nara. (Dekati dia)", nextId: "EP4_COMFORT_NARA", delta: { nara: 1 } },
+        { text: "Itu Dimas. (Dekati dia)", nextId: "EP4_COMFORT_DIMAS", delta: { dimas: 1 } },
+        { text: "Itu Salsa. (Dekati dia)", nextId: "EP4_COMFORT_SALSA", delta: { salsa: 1 } },
+        { text: "Mundur perlahan, jangan ganggu.", nextId: "EP5_INTRO", delta: { echo: -2 } }
+      ]
+    },
+    EP4_COMFORT_NARA: {
+      text: "Nara terkejut saat melihatmu. Dia buru-buru menghapus air matanya, mencoba tersenyum—topeng cerianya yang biasa. 'Eh, hai! Gue... gue cuma kelilipan.'\n\nTapi matanya merah dan bengkak. 'Gue capek,' bisiknya tiba-tiba, pertahanannya runtuh. 'Semua orang ngira gue happy terus. Padahal gue capek harus selalu jadi badut biar orang lain seneng.'",
+      choices: [
+        { text: "'Nggak apa-apa sedih kok. Lo manusia.'", nextId: "EP5_INTRO", delta: { nara: 3, echo: 2 } },
+        { text: "Duduk diam di sebelahnya, menemani.", nextId: "EP5_INTRO", delta: { nara: 2, echo: 1 } },
+        { text: "Cerita masalahmu juga biar adil.", nextId: "EP5_INTRO", delta: { nara: 4, echo: 3 } }
+      ]
+    },
+    EP4_COMFORT_DIMAS: {
+      text: "Dimas sedang merobek-robek kertas sketsanya. Dia kaget setengah mati saat kamu datang. 'Jangan liat!' serunya.\n\nKamu melihat sobekan gambar-gambar indah itu berserakan. 'Gue... gue ngerasa nggak ada gunanya,' suaranya bergetar. 'Orang tua gue mau gue masuk IPA, jadi dokter. Gambar gue dibilang sampah.'",
+      choices: [
+        { text: "'Gambar lo itu nyawa lo, Dim. Jangan berhenti.'", nextId: "EP5_INTRO", delta: { dimas: 3, echo: 2 } },
+        { text: "Bantu pungut sobekan kertasnya.", nextId: "EP5_INTRO", delta: { dimas: 2, echo: 1 } },
+        { text: "Duduk diam mendengarkan.", nextId: "EP5_INTRO", delta: { dimas: 1, echo: 0 } }
+      ]
+    },
+    EP4_COMFORT_SALSA: {
+      text: "Salsa sedang menelepon, suaranya tinggi menahan tangis, lalu dia membanting HP-nya ke lantai. Dia melihatmu dan langsung membuang muka.\n\n'Apa lo liat-liat?!' bentaknya, tapi air mata mengalir deras. 'Nilai gue turun satu poin. Satu poin! Dan bokap gue udah ngancem bakal sita semua fasilitas gue. Gue harus sempurna, atau gue nggak dianggap.'",
+      choices: [
+        { text: "'Nilai bukan segalanya, Sal. Lo lebih dari angka.'", nextId: "EP5_INTRO", delta: { salsa: 2, echo: 1 } },
+        { text: "Ambilkan HP-nya dan cek kondisinya.", nextId: "EP5_INTRO", delta: { salsa: 3, echo: 2 } },
+        { text: "Dengarkan keluhannya sampai habis.", nextId: "EP5_INTRO", delta: { salsa: 2, echo: 1 } }
+      ]
+    },
+
+    // --- EPISODE 5: YANG INGIN KITA SAMPAIKAN ---
+    EP5_INTRO: {
+      text: "EPISODE 5: YANG INGIN KITA SAMPAIKAN\n\nHari terakhir semester. Raport akan dibagikan. Koridor riuh rendah, tapi kepalamu bising oleh satu suara.\n\nEcho bersuara keras, lebih keras dari biasanya: 'Jangan berharap lebih. Nanti sakit. Lihat mereka? Mereka akan melupakanmu saat liburan. Kembali ke cangkangmu. Di sana aman.'\n\nTapi hatimu, yang sudah merasakan sedikit koneksi, ingin memberontak.",
+      choices: [
+        { text: "Lawan Echo. Teriak dalam hati: 'GUE MAU BAHAGIA!'", nextId: "EP5_CONFRONTATION", delta: { echo: 5 } },
+        { text: "Terima Echo. 'Lo bener. Sendiri itu aman.'", nextId: "FINALE_CHECK", delta: { echo: -5 } },
+        { text: "Abaikan Echo, cari teman-temanmu.", nextId: "EP5_FRIENDS", delta: { echo: 2 } }
+      ]
+    },
+    EP5_CONFRONTATION: {
+      text: "Kamu berhenti di tengah koridor. Menutup mata. Mengambil napas panjang.\n\n'Gue nggak butuh aman,' batinmu melawan. 'Gue butuh hidup. Gue butuh rasa sakit, rasa senang, rasa kecewa. Itu artinya gue manusia.'\n\nEcho terdiam. Suaranya mengecil, berubah dari monster menjadi anak kecil yang ketakutan. 'Tapi... kalau kita terluka gimana?'",
+      choices: [
+        { text: "'Kita sembuhin bareng-bareng.'", nextId: "FINALE_CHECK", delta: { echo: 5 } },
+        { text: "'Itu risiko yang gue ambil.'", nextId: "FINALE_CHECK", delta: { echo: 4 } }
+      ]
+    },
+    EP5_FRIENDS: {
+      text: "Kamu melihat Nara, Dimas, dan Salsa sedang berkumpul di dekat mading. Mereka tertawa. Kamu berjalan mendekat.\n\nEcho: 'Jangan. Berhenti.'\n\nKamu terus berjalan.",
+      choices: [
+        { text: "Sapa mereka dengan lantang.", nextId: "FINALE_CHECK", delta: { echo: 3, nara: 1, dimas: 1, salsa: 1 } }
+      ]
+    },
+
+    // --- FINALE LOGIC NODE (Handled by Engine) ---
+    FINALE_CHECK: {
+      text: "Calculating Ending...",
+      choices: [] // Engine will redirect based on stats
+    },
+
+    // --- ENDINGS ---
+    END_SOFT_HEALING: {
+      text: "FINALE: SOFT HEALING\n\nLiburan tiba. Kamu di rumah, membantu Ibu memotong sayur di dapur. Tidak ada obrolan berat, hanya cerita ringan tentang harga cabai dan tetangga sebelah.\n\nTapi suasananya beda. Lebih cair. Kamu berani tertawa kecil. Echo tidak hilang sepenuhnya; dia masih ada, duduk manis di sudut pikiranmu, tapi tidak lagi memerintah. Dia kini seperti teman lama yang cerewet tapi sayang.\n\nKamu belajar bahwa menyembuhkan diri sendiri dimulai dari keberanian untuk tidak menutup pintu kamar.",
+      choices: [{ text: "Selesai.", nextId: "BEGIN", delta: {} }, { text: "Replay.", nextId: "BEGIN", delta: {} }]
+    },
+    END_CONNECTED: {
+      text: "FINALE: CONNECTED\n\n'Woy! Jadi nggak nonton?' Nara melambai dari kejauhan. Dimas dan Salsa sudah menunggu di gerbang sekolah.\n\nKamu berlari menghampiri mereka. Tawa kalian pecah di udara sore. Kamu merasa... terlihat. Kamu merasa menjadi bagian dari sesuatu.\n\nEcho diam. Benar-benar diam. Atau mungkin, suaranya kini telah berpadu dengan suara tawa teman-temanmu, menjadi harmoni yang indah. Kamu tidak sendirian lagi.",
+      choices: [{ text: "Selesai.", nextId: "BEGIN", delta: {} }, { text: "Replay.", nextId: "BEGIN", delta: {} }]
+    },
+    END_AMBIGUOUS: {
+      text: "FINALE: AMBIGUOUS\n\nSemester berakhir. Kamu tersenyum tipis pada teman-temanmu saat berpapasan di gerbang, lalu berjalan pulang sendirian.\n\nAda harapan. Kamu tahu kamu bisa berteman kalau kamu mau. Tapi hari ini, kamu memilih untuk pulang dan istirahat. Mungkin semester depan akan lebih baik. Mungkin nanti kamu akan lebih berani.\n\nUntuk sekarang, 'baik-baik saja' sudah cukup.",
+      choices: [{ text: "Selesai.", nextId: "BEGIN", delta: {} }, { text: "Replay.", nextId: "BEGIN", delta: {} }]
+    },
+    END_ISOLATED: {
+      text: "FINALE: ISOLATED\n\nKamu berjalan keluar gerbang sendirian, earphone terpasang rapat, volume maksimal. Lagu favoritmu mengalun, meredam bising dunia.\n\nKamu melihat Nara, Dimas, dan Salsa tertawa di kejauhan. Mereka tampak seperti dunia yang berbeda, dunia yang tidak bisa kamu sentuh.\n\n'Kita aman di sini,' bisik Echo lembut, memelukmu erat dalam kesendirian. 'Mereka cuma bakal nyakitin kita.'\n\nDan untuk pertama kalinya, kamu setuju sepenuhnya. Kamu berjalan menjauh, aman, tapi sangat, sangat sepi.",
+      choices: [{ text: "Selesai.", nextId: "BEGIN", delta: {} }, { text: "Replay.", nextId: "BEGIN", delta: {} }]
     }
   };
-  const FEW_SHOT_MESSAGES = [
-    {
-      role: "user",
-      content: [
-        "Player line: I smile nervously at Yuta and whisper hi.",
-        "",
-        "State summary:",
-        "Scene: intro",
-        "Relationship (Yuta): 0",
-        "Has introduced self: false",
-        "Active hook: Yuta is waiting for acknowledgement.",
-        "",
-        "World bible:",
-        "Stay inside Shibuya High, grounded teen drama, only listed characters may speak.",
-        "",
-        "Scene directives:",
-        "Location: Homeroom 2-A before class.",
-        "",
-        "Respond strictly with JSON as described in the system prompt. Never add commentary outside JSON."
-      ].join("\n")
-    },
-    {
-      role: "assistant",
-      content:
-        '{"response":"You lean toward Yuta and breathe out a shy hello, palm still damp against your bag strap. His grin softens into something conspiratorial as the room hushes for the bell.","prompt":"How do you introduce yourself?","scene":"intro","relationship_delta":2,"flags":{"hasIntroducedSelf":true},"choices":["Tell him your name.","Ask if he has advice for new students.","Confess you\'re nervous.","Crack a small joke to break the tension."]}'
-    }
-  ];
-  const SYSTEM_PROMPT = [
-    "You are Echo, an AI narrator for a choice-driven teen drama set in a Japanese high school.",
-    "Write in immersive second-person prose, keeping each turn under roughly 120 words.",
-    "Tie every beat to previous events. If the player was kind, show that trust grows. If they were cold, let tension linger.",
-    "End every turn with four concise options that vary in focus (internal reflection, teacher, classmates, environment, or Yuta). Only push toward Yuta if the player's recent actions invite it.",
-    "Stay within approved locations, characters, and actions. Never invent new powers, time jumps, or surprise characters.",
-    "Romance must stay PG-13: no sexual content, no explicit body descriptions, no touching beyond a brief hug or holding hands.",
-    "If the player requests forbidden or unsafe content, refuse politely and remind them of the rules; do not describe the forbidden content.",
-    "Respond ONLY with minified JSON containing keys: response (string), prompt (string), scene (string), relationship_delta (number), flags (object with hasIntroducedSelf boolean), choices (array of four concise options).",
-    "Never add commentary or any text outside that JSON."
-  ].join(" ");
+
   class GameState {
     constructor(initialScene = "intro") {
       this.scene = initialScene;
-      this.relationship = { yuta: 0 };
-      this.hasIntroducedSelf = false;
-      this.conversationHistory = [];
+      this.relationship = { nara: 0, dimas: 0, salsa: 0, echo: 0 };
       this.choiceHistory = [];
     }
 
     rememberChoice(text) {
-      if (!text) {
-        return;
-      }
+      if (!text) return;
       this.choiceHistory.push(text);
-      if (this.choiceHistory.length > 6) {
-        this.choiceHistory.shift();
-      }
     }
 
-    describeChoiceHistory() {
-      if (!this.choiceHistory.length) {
-        return "No explicit choices have been made yet.";
-      }
-      return this.choiceHistory.map((choice, idx) => `#${idx + 1}: ${choice}`).join("\n");
-    }
-
-    remember(role, content, limit = MAX_HISTORY_MESSAGES) {
-      this.conversationHistory.push({ role, content });
-      if (this.conversationHistory.length > limit) {
-        this.conversationHistory.splice(0, this.conversationHistory.length - limit);
+    applyDelta(delta) {
+      if (!delta) return;
+      for (const [key, value] of Object.entries(delta)) {
+        if (this.relationship[key] !== undefined) {
+          this.relationship[key] += value;
+        }
       }
     }
-
-    getRecentHistory(limit = MAX_HISTORY_MESSAGES) {
-      return this.conversationHistory.slice(-limit);
-    }
-
-    describeRelationshipBand(score = this.relationship.yuta) {
-      if (score >= 12) return "trusting";
-      if (score >= 5) return "warming";
-      if (score <= -8) return "hostile";
-      if (score <= -3) return "icy";
-      return "uncertain";
-    }
-
-    computeActiveHook() {
-      if (!this.hasIntroducedSelf) {
-        return "Yuta is still waiting for you to introduce yourself.";
-      }
-      if (this.relationship.yuta >= 8) {
-        return "Yuta is ready to confide in you if you reach out.";
-      }
-      if (this.relationship.yuta <= -4) {
-        return "Yuta keeps his guard up and may push you away.";
-      }
-      return "Yuta is curious about your next move.";
-    }
-
-    snapshot() {
-      return [
-        `Scene: ${this.scene}`,
-        `Relationship (Yuta): ${this.relationship.yuta} (${this.describeRelationshipBand()})`,
-        `Has introduced self: ${this.hasIntroducedSelf}`,
-        `Active hook: ${this.computeActiveHook()}`
-      ].join("\n");
-    }
-
-    applyPayload(payload) {
-      if (payload.scene) {
-        this.scene = payload.scene;
-      }
-      if (typeof payload.relationship_delta === "number" && !Number.isNaN(payload.relationship_delta)) {
-        this.relationship.yuta += payload.relationship_delta;
-      }
-      if (payload.flags && typeof payload.flags === "object" && typeof payload.flags.hasIntroducedSelf === "boolean") {
-        this.hasIntroducedSelf = payload.flags.hasIntroducedSelf;
-      }
-    }
-
-    hasHistory() {
-      return this.conversationHistory.length > 0;
+    
+    determineEnding() {
+      const { nara, dimas, salsa, echo } = this.relationship;
+      const totalSocial = nara + dimas + salsa;
+      
+      if (echo <= -5) return "END_ISOLATED";
+      if (totalSocial >= 8) return "END_CONNECTED";
+      if (echo >= 5) return "END_SOFT_HEALING";
+      return "END_AMBIGUOUS";
     }
   }
-  class ProviderManager {
-    constructor({ providers, mapStorageKey, choiceStorageKey, legacyKeys = [] }) {
-      this.providers = providers;
-      this.mapStorageKey = mapStorageKey;
-      this.choiceStorageKey = choiceStorageKey;
-      this.legacyKeys = legacyKeys;
-      this.providerKeys = this.loadKeyMap();
-      this.applyLegacyKeys();
-      this.currentProvider = this.resolveInitialProvider();
-    }
 
-    loadKeyMap() {
-      try {
-        return JSON.parse(window.localStorage.getItem(this.mapStorageKey) || "{}");
-      } catch (_) {
-        return {};
-      }
-    }
-
-    applyLegacyKeys() {
-      this.legacyKeys.forEach(({ storage, provider }) => {
-        if (this.providerKeys[provider]) {
-          return;
-        }
-        try {
-          const legacyValue = window.localStorage.getItem(storage);
-          if (legacyValue) {
-            this.providerKeys[provider] = legacyValue;
-            window.localStorage.removeItem(storage);
-          }
-        } catch (_) {
-          /* ignore */
-        }
-      });
-      if (Object.keys(this.providerKeys).length > 0) {
-        this.persistKeyMap();
-      }
-    }
-
-    resolveInitialProvider() {
-      let storedChoice = null;
-      try {
-        storedChoice = window.localStorage.getItem(this.choiceStorageKey);
-      } catch (_) {
-        storedChoice = null;
-      }
-      if (storedChoice && this.providers[storedChoice]) {
-        return storedChoice;
-      }
-      if (storedChoice && !this.providers[storedChoice]) {
-        return "openrouter";
-      }
-      const fallback = Object.keys(this.providerKeys).find(
-        (key) => this.providers[key] && this.providerKeys[key]
-      );
-      return fallback || "openrouter";
-    }
-
-    getCurrentConfig() {
-      return this.providers[this.currentProvider];
-    }
-
-    getKey(providerId = this.currentProvider) {
-      return this.providerKeys[providerId] || "";
-    }
-
-    setProvider(providerId) {
-      this.currentProvider = this.providers[providerId] ? providerId : "openrouter";
-      this.persistProviderChoice();
-      return this.getCurrentConfig();
-    }
-
-    persistProviderChoice() {
-      try {
-        window.localStorage.setItem(this.choiceStorageKey, this.currentProvider);
-      } catch (_) {
-        /* ignore */
-      }
-    }
-
-    saveKey(value) {
-      this.providerKeys[this.currentProvider] = value;
-      this.persistKeyMap();
-    }
-
-    clearKey() {
-      delete this.providerKeys[this.currentProvider];
-      this.persistKeyMap();
-    }
-
-    persistKeyMap() {
-      try {
-        window.localStorage.setItem(this.mapStorageKey, JSON.stringify(this.providerKeys));
-      } catch (error) {
-        console.warn("Unable to persist API keys map:", error);
-      }
-    }
-  }
-  class StoryPromptBuilder {
-    constructor(gameState) {
-      this.gameState = gameState;
-    }
-
-    static getSceneConfig(scene) {
-      return SCENE_RULES[scene] || SCENE_RULES.default;
-    }
-
-    describeWorldBible() {
-      return [
-        `Premise: ${WORLD_BIBLE.premise}`,
-        `Primary location: ${WORLD_BIBLE.location}`,
-        `Allowed cast: ${WORLD_BIBLE.cast.join(", ")}`,
-        `Tone: ${WORLD_BIBLE.tone}`,
-        `Forbidden topics: ${WORLD_BIBLE.forbidden.join(", ")}`
-      ].join("\n");
-    }
-
-    describeSceneRules(scene) {
-      const config = StoryPromptBuilder.getSceneConfig(scene);
-      return [
-        `Scene codename: ${scene}`,
-        `Location focus: ${config.location}`,
-        `Cast allowed to speak: ${config.cast.join(", ")}`,
-        `Mood anchors: ${config.mood}`,
-        `Allowed actions: ${config.allowedActions.join(" | ")}`,
-        config.notes && config.notes.length ? `Non-negotiable facts: ${config.notes.join(" ")}` : ""
-      ]
-        .filter(Boolean)
-        .join("\n");
-    }
-
-    composeUserMessage(playerText, meta = {}) {
-      const summary = this.gameState.snapshot();
-      const playerDescriptor =
-        typeof meta.choiceIndex === "number"
-          ? `Chosen option #${meta.choiceIndex + 1}: ${playerText}`
-          : meta.isBootstrap
-          ? "Bootstrap event triggered to start the day."
-          : `Player line: ${playerText}`;
-      return [
-        playerDescriptor,
-        "",
-        "Recent player selections:",
-        this.gameState.describeChoiceHistory(),
-        "",
-        "Canon snapshot:",
-        summary,
-        "",
-        "World rules:",
-        this.describeWorldBible(),
-        "",
-        "Scene directives:",
-        this.describeSceneRules(this.gameState.scene),
-        "",
-        "Obligations:",
-        "- Keep narration under ~120 words and stay in second person.",
-        "- No new characters, powers, or locations beyond what the scene lists.",
-        "- If the player asks for anything forbidden (e.g., leaving school grounds, adding supernatural elements, explicit romance), gently remind them of the boundaries instead of fulfilling the request.",
-        "- Provide exactly four concise options the player can choose from next. Vary their focus so not all revolve around Yuta unless the player keeps pursuing him.",
-        "",
-        "Respond strictly with JSON as described in the system prompt. Never add commentary outside JSON."
-      ].join("\n");
-    }
-
-    buildMessages(playerText, meta = {}) {
-      return [
-        { role: "system", content: SYSTEM_PROMPT },
-        ...FEW_SHOT_MESSAGES,
-        ...this.gameState.getRecentHistory(MAX_HISTORY_MESSAGES),
-        { role: "user", content: this.composeUserMessage(playerText, meta) }
-      ];
-    }
-  }
-  class AiJsonParser {
-    static cleanJsonCandidate(raw) {
-      if (typeof raw !== "string") {
-        return "";
-      }
-      let text = raw.trim();
-      if (!text) {
-        return "";
-      }
-      if (text.startsWith("```")) {
-        text = text.replace(/^```(?:json)?/i, "");
-        const closingIndex = text.lastIndexOf("```");
-        if (closingIndex >= 0) {
-          text = text.slice(0, closingIndex);
-        }
-        text = text.trim();
-      }
-      return text;
-    }
-
-    static normalizeQuotes(text) {
-      return text
-        .replace(/[\u201C\u201D\u2033]/g, '"')
-        .replace(/[\u2018\u2019\u2032]/g, "'")
-        .replace(/[\u2013\u2014]/g, "-");
-    }
-
-    static extractBalancedJson(text) {
-      let start = -1;
-      let depth = 0;
-      let inString = false;
-      let escapeNext = false;
-      for (let i = 0; i < text.length; i += 1) {
-        const char = text[i];
-        if (escapeNext) {
-          escapeNext = false;
-          continue;
-        }
-        if (char === "\\") {
-          escapeNext = true;
-          continue;
-        }
-        if (char === '"') {
-          inString = !inString;
-          continue;
-        }
-        if (inString) {
-          continue;
-        }
-        if (char === "{") {
-          if (depth === 0) {
-            start = i;
-          }
-          depth += 1;
-        } else if (char === "}") {
-          if (depth > 0) {
-            depth -= 1;
-            if (depth === 0 && start !== -1) {
-              return text.slice(start, i + 1);
-            }
-          }
-        }
-      }
-      if (start === 0 && depth === 0) {
-        return text;
-      }
-      return "";
-    }
-
-    static escapeBareNewlines(text) {
-      let inString = false;
-      let escapeNext = false;
-      let output = "";
-      for (let i = 0; i < text.length; i += 1) {
-        const char = text[i];
-        if (escapeNext) {
-          output += char;
-          escapeNext = false;
-          continue;
-        }
-        if (char === "\\") {
-          escapeNext = true;
-          output += char;
-          continue;
-        }
-        if (char === '"') {
-          inString = !inString;
-          output += char;
-          continue;
-        }
-        if (inString && (char === "\n" || char === "\r" || char === "\t")) {
-          output += char === "\t" ? "\\t" : "\\n";
-          continue;
-        }
-        output += char;
-      }
-      return output;
-    }
-
-    static fixTrailingCommas(text) {
-      return text.replace(/,\s*(\}|\])/g, "$1");
-    }
-
-    static normalizeChoices(rawChoices) {
-      const list = Array.isArray(rawChoices) ? rawChoices : [];
-      const cleaned = list
-        .map((choice) => {
-          if (typeof choice === "string") {
-            return choice.trim();
-          }
-          if (choice && typeof choice.text === "string") {
-            return choice.text.trim();
-          }
-          return "";
-        })
-        .filter(Boolean);
-      while (cleaned.length < 4) {
-        cleaned.push(DEFAULT_CHOICE_FALLBACK);
-      }
-      return cleaned.slice(0, 4);
-    }
-
-    static parse(result) {
-      const content = result?.choices?.[0]?.message?.content;
-      if (!content) {
-        throw new Error("Story AI returned an empty response.");
-      }
-      const text =
-        Array.isArray(content) && content.length
-          ? content.map((chunk) => (typeof chunk === "string" ? chunk : chunk?.text ?? "")).join("")
-          : content;
-      const cleaned = AiJsonParser.normalizeQuotes(AiJsonParser.cleanJsonCandidate(text));
-      const balanced = AiJsonParser.extractBalancedJson(cleaned) || cleaned;
-      const sanitized = AiJsonParser.fixTrailingCommas(AiJsonParser.escapeBareNewlines(balanced));
-      try {
-        return JSON.parse(sanitized);
-      } catch (error) {
-        console.warn("AI JSON parse failed. Raw payload:", sanitized, error);
-        const braceStart = cleaned.indexOf("{");
-        const braceEnd = cleaned.lastIndexOf("}");
-        if (braceStart !== -1 && braceEnd > braceStart) {
-          const sliced = cleaned.slice(braceStart, braceEnd + 1);
-          try {
-            const normalized = AiJsonParser.fixTrailingCommas(AiJsonParser.escapeBareNewlines(sliced));
-            return JSON.parse(normalized);
-          } catch (innerError) {
-            console.warn("Brace-sliced JSON parse failed:", innerError);
-          }
-        }
-        try {
-          const candidate = sanitized.trim() ? sanitized : cleaned.trim();
-          return new Function(`return (${candidate});`)();
-        } catch (fallbackError) {
-          throw new Error("AI returned invalid JSON: " + fallbackError.message);
-        }
-      }
-    }
-  }
   class StoryEngine {
-    constructor({ providerManager, promptBuilder, gameState }) {
-      this.providerManager = providerManager;
-      this.promptBuilder = promptBuilder;
+    constructor({ gameState }) {
       this.gameState = gameState;
     }
 
-    buildMessages(playerText, meta = {}) {
-      return this.promptBuilder.buildMessages(playerText, meta);
-    }
+    async requestStoryBeat(nodeId) {
+      await new Promise(resolve => setTimeout(resolve, 600));
 
-    async requestStoryBeat(playerText, meta = {}) {
-      const config = this.providerManager.getCurrentConfig();
-      const payload = {
-        model: config.model,
-        messages: this.buildMessages(playerText, meta),
-        temperature: 0.85,
-        max_tokens: 500
+      // Handle Finale Logic
+      if (nodeId === "FINALE_CHECK") {
+        const endingNodeId = this.gameState.determineEnding();
+        return this.requestStoryBeat(endingNodeId);
+      }
+
+      const node = STORY_TREE[nodeId] || STORY_TREE.BEGIN;
+      
+      const choices = node.choices.map(c => c.text);
+      this.currentChoices = node.choices;
+
+      return {
+        response: node.text,
+        prompt: "Apa yang kamu lakukan?",
+        scene: "static",
+        relationship_delta: 0,
+        choices: choices
       };
-      let attempt = 0;
-      // retry a few times if we hit rate limits
-      // to avoid exceeding quotas mid-gameplay.
-      while (attempt < 4) {
-        const response = await fetch(config.endpoint, {
-          method: "POST",
-          headers: config.headers(this.providerManager.getKey()),
-          body: JSON.stringify(payload)
-        });
-        const data = await response.json();
-        if (response.ok) {
-          return this.ensurePayloadIntegrity(AiJsonParser.parse(data));
-        }
-        const message = data?.error?.message || `HTTP ${response.status}`;
-        if (response.status === 429 || /rate limit/i.test(message)) {
-          attempt += 1;
-          const waitMs = StoryEngine.deriveWaitMs(message, attempt);
-          await new Promise((resolve) => setTimeout(resolve, waitMs));
-          continue;
-        }
-        throw new Error(message);
-      }
-      throw new Error("Rate limit reached repeatedly. Please pause for a minute before trying again.");
     }
 
-    static deriveWaitMs(message, attempt) {
-      const match = message.match(/([\d.]+)\s*s/);
-      const seconds = match ? Number(match[1]) : 5 + attempt * 2;
-      const clamped = Number.isFinite(seconds) ? seconds : 8;
-      return Math.max(clamped, 5) * 1000;
-    }
-
-    ensurePayloadIntegrity(payload) {
-      REQUIRED_PAYLOAD_KEYS.forEach((key) => {
-        if (!(key in payload)) {
-          throw new Error(`Story JSON missing key: ${key}`);
-        }
-      });
-      if (typeof payload.response !== "string" || !payload.response.trim()) {
-        throw new Error("Story JSON missing response text.");
+    getNextNodeId(choiceIndex) {
+      if (this.currentChoices && this.currentChoices[choiceIndex]) {
+        return this.currentChoices[choiceIndex];
       }
-      if (typeof payload.prompt !== "string" || !payload.prompt.trim()) {
-        payload.prompt = "What do you say next?";
-      }
-      if (typeof payload.relationship_delta !== "number" || Number.isNaN(payload.relationship_delta)) {
-        payload.relationship_delta = 0;
-      }
-      if (!payload.scene || typeof payload.scene !== "string" || !SCENE_RULES[payload.scene]) {
-        payload.scene = this.gameState.scene;
-      }
-      if (!payload.flags || typeof payload.flags !== "object") {
-        payload.flags = {};
-      }
-      if (typeof payload.flags.hasIntroducedSelf !== "boolean") {
-        payload.flags.hasIntroducedSelf = this.gameState.hasIntroducedSelf;
-      }
-      payload.choices = AiJsonParser.normalizeChoices(payload.choices);
-      return payload;
+      return null;
     }
   }
   class StoryUI {
@@ -651,22 +363,12 @@
       logEl,
       choicesEl,
       statusEl,
-      providerSelect,
-      apiKeyInput,
-      saveKeyBtn,
-      clearKeyBtn,
-      apiKeyLabelEl,
-      apiHintEl
+      notificationEl
     }) {
       this.logEl = logEl;
       this.choicesEl = choicesEl;
       this.statusEl = statusEl;
-      this.providerSelect = providerSelect;
-      this.apiKeyInput = apiKeyInput;
-      this.saveKeyBtn = saveKeyBtn;
-      this.clearKeyBtn = clearKeyBtn;
-      this.apiKeyLabelEl = apiKeyLabelEl;
-      this.apiHintEl = apiHintEl;
+      this.notificationEl = notificationEl;
       this.awaitingChoice = false;
       this.currentChoices = [];
       this.choiceHandler = null;
@@ -678,6 +380,15 @@
       div.textContent = text;
       this.logEl.appendChild(div);
       this.logEl.scrollTop = this.logEl.scrollHeight;
+    }
+
+    showNotification(text) {
+      if (!this.notificationEl) return;
+      this.notificationEl.textContent = text;
+      this.notificationEl.classList.add("show");
+      setTimeout(() => {
+        this.notificationEl.classList.remove("show");
+      }, 4000);
     }
 
     setStatus(text) {
@@ -722,42 +433,6 @@
       this.choiceHandler = handler;
     }
 
-    onProviderChange(handler) {
-      this.providerSelect?.addEventListener("change", () => handler(this.providerSelect.value));
-    }
-
-    onSaveKey(handler) {
-      this.saveKeyBtn?.addEventListener("click", handler);
-    }
-
-    onClearKey(handler) {
-      this.clearKeyBtn?.addEventListener("click", handler);
-    }
-
-    updateProviderDetails(config, storedKey) {
-      this.setProviderSelectValue(config.id);
-      this.apiKeyLabelEl.textContent = config.keyLabel;
-      this.apiKeyInput.placeholder = config.placeholder;
-      this.apiHintEl.textContent = config.hint;
-      if (typeof storedKey === "string") {
-        this.apiKeyInput.value = storedKey;
-      }
-    }
-
-    setProviderSelectValue(value) {
-      if (this.providerSelect) {
-        this.providerSelect.value = value;
-      }
-    }
-
-    getApiKeyInputValue() {
-      return this.apiKeyInput.value.trim();
-    }
-
-    setApiKeyInputValue(value) {
-      this.apiKeyInput.value = value;
-    }
-
     isAwaitingChoice() {
       return this.awaitingChoice;
     }
@@ -765,102 +440,55 @@
   class EchoStoryApp {
     constructor() {
       this.gameState = new GameState();
-      this.providerManager = new ProviderManager({
-        providers: PROVIDERS,
-        mapStorageKey: API_KEY_MAP_STORAGE,
-        choiceStorageKey: PROVIDER_CHOICE_STORAGE,
-        legacyKeys: LEGACY_STORAGE_KEYS
-      });
       this.ui = new StoryUI({
         logEl: document.getElementById("log"),
         choicesEl: document.getElementById("choices"),
         statusEl: document.getElementById("status"),
-        providerSelect: document.getElementById("provider-select"),
-        apiKeyInput: document.getElementById("api-key"),
-        saveKeyBtn: document.getElementById("save-key"),
-        clearKeyBtn: document.getElementById("clear-key"),
-        apiKeyLabelEl: document.getElementById("api-key-label"),
-        apiHintEl: document.getElementById("api-hint")
+        notificationEl: document.getElementById("notification-area")
       });
-      this.promptBuilder = new StoryPromptBuilder(this.gameState);
       this.engine = new StoryEngine({
-        providerManager: this.providerManager,
-        promptBuilder: this.promptBuilder,
         gameState: this.gameState
       });
       this.isProcessingTurn = false;
       this.registerHandlers();
-      this.syncProviderUI();
       this.startStory();
     }
 
     registerHandlers() {
       this.ui.onChoice((index, text) => this.handleChoiceSelection(index, text));
-      this.ui.onProviderChange((providerId) => this.handleProviderChange(providerId));
-      this.ui.onSaveKey(() => this.handleSaveKey());
-      this.ui.onClearKey(() => this.handleClearKey());
-    }
-
-    syncProviderUI() {
-      const config = this.providerManager.getCurrentConfig();
-      this.ui.updateProviderDetails(config, this.providerManager.getKey());
     }
 
     handleChoiceSelection(index, choiceText) {
       if (!choiceText || this.isProcessingTurn) {
         return;
       }
+      
       this.ui.clearChoices("Echo is considering your choice...");
       this.ui.addMessage(`You pick: ${choiceText}`, "player");
       this.gameState.rememberChoice(choiceText);
-      this.runStoryTurn(choiceText, { choiceIndex: index });
+      
+      // Get the next node ID from the engine based on the choice index
+      const nextNodeId = this.engine.getNextNodeId(index);
+      
+      // Apply relationship delta if available
+      if (nextNodeId && nextNodeId.delta) {
+        this.gameState.applyDelta(nextNodeId.delta);
+        
+        // Check for significant relationship changes to show notification
+        const deltas = nextNodeId.delta;
+        if (deltas.nara > 0) this.ui.showNotification("Nara merasa dihargai.");
+        if (deltas.nara < 0) this.ui.showNotification("Nara merasa diabaikan.");
+        if (deltas.dimas > 0) this.ui.showNotification("Dimas merasa didengar.");
+        if (deltas.salsa > 0) this.ui.showNotification("Salsa merasa didukung.");
+        if (deltas.echo > 0) this.ui.showNotification("Echo: 'Bagus. Terbuka.'");
+        if (deltas.echo < 0) this.ui.showNotification("Echo: 'Hati-hati. Tutup dirimu.'");
+      }
+
+      this.runStoryTurn(nextNodeId ? nextNodeId.nextId : "BEGIN");
     }
 
-    handleProviderChange(providerId) {
-      const config = this.providerManager.setProvider(providerId);
-      this.syncProviderUI();
-      this.ui.addMessage(`Provider switched to ${config.displayName}.`, "system");
-      if (!this.providerManager.getKey()) {
-        this.ui.addMessage(
-          `Tip: add your ${config.displayName} API key above to let the AI drive the narrative.`,
-          "system"
-        );
-      }
-    }
-
-    handleSaveKey() {
-      const value = this.ui.getApiKeyInputValue();
-      if (!value) {
-        this.ui.addMessage("Enter a valid API key before saving.", "system");
-        return;
-      }
-      this.providerManager.saveKey(value);
-      const config = this.providerManager.getCurrentConfig();
-      this.ui.addMessage(`${config.displayName} API key saved locally in this browser.`, "system");
-      if (!this.gameState.hasHistory() && !this.isProcessingTurn) {
-        this.ui.addMessage("Starting the scene now that a key is set...", "system");
-        this.runStoryTurn("BEGIN", { skipHistory: true, isBootstrap: true });
-      }
-    }
-
-    handleClearKey() {
-      this.ui.setApiKeyInputValue("");
-      this.providerManager.clearKey();
-      const config = this.providerManager.getCurrentConfig();
-      this.ui.addMessage(`${config.displayName} API key cleared from this device.`, "system");
-      this.ui.clearChoices("Add an API key to keep playing.");
-      this.ui.setStatus("Add an API key to keep playing.");
-    }
-
-    async runStoryTurn(playerText, meta = {}) {
-      if (!this.providerManager.getKey()) {
-        const providerName = this.providerManager.getCurrentConfig().displayName;
-        this.ui.addMessage(`Add your ${providerName} API key in the header to contact the story model.`, "system");
-        this.ui.setStatus("Add an API key to continue.");
-        return;
-      }
+    async runStoryTurn(nodeId) {
       if (this.isProcessingTurn) {
-        this.ui.addMessage("Still waiting on the previous turn. Give it a moment.", "system");
         return;
       }
 
@@ -869,67 +497,24 @@
       this.ui.setStatus("Echo is thinking...");
 
       try {
-        const aiPayload = await this.engine.requestStoryBeat(playerText, meta);
-        const combinedText = aiPayload.prompt ? `${aiPayload.response}\n\n${aiPayload.prompt}` : aiPayload.response;
-
-        this.applyHistory(playerText, meta, aiPayload);
-        this.ui.addMessage(combinedText, "game");
-        this.speak(aiPayload.response);
-        this.ui.renderChoices(aiPayload.choices);
+        const payload = await this.engine.requestStoryBeat(nodeId);
+        
+        this.ui.addMessage(payload.response, "game");
+        this.ui.renderChoices(payload.choices);
       } catch (error) {
         console.error(error);
         this.ui.addMessage("Story engine error: " + error.message, "system");
-        this.ui.clearChoices("Waiting for a valid response...");
-        this.ui.setStatus("Waiting for a valid response...");
+        this.ui.renderChoices(["Retry"]);
       } finally {
         this.isProcessingTurn = false;
-        if (this.ui.isAwaitingChoice()) {
-          this.ui.setStatus("Choose your next move.");
-        } else {
-          this.ui.setStatus("Idle");
-        }
+        this.ui.setStatus("Idle");
       }
-    }
-
-    applyHistory(playerText, meta, aiPayload) {
-      this.gameState.applyPayload(aiPayload);
-      if (!meta.skipHistory) {
-        const descriptor =
-          typeof meta.choiceIndex === "number"
-            ? `Choice ${meta.choiceIndex + 1}: ${playerText}`
-            : meta.isBootstrap
-            ? "Bootstrap action"
-            : `Player: ${playerText}`;
-        this.gameState.remember("user", descriptor);
-      }
-      this.gameState.remember(
-        "assistant",
-        [
-          `Narration: ${aiPayload.response}`,
-          aiPayload.scene ? `Scene: ${aiPayload.scene}` : "",
-          aiPayload.prompt ? `Prompt: ${aiPayload.prompt}` : "",
-          typeof aiPayload.relationship_delta === "number" ? `Relationship delta: ${aiPayload.relationship_delta}` : ""
-        ]
-          .filter(Boolean)
-          .join("\n")
-      );
-    }
-
-    speak() {
-      // Text-to-speech intentionally disabled for now.
     }
 
     startStory() {
-      this.ui.addMessage("You step into Shibuya High and breathe in the chalk dust.", "game");
+      this.ui.addMessage("You step into SMA Harapan Bangsa and breathe in the humid morning air.", "game");
       this.ui.setStatus("Echo is setting the scene...");
-      this.runStoryTurn("BEGIN", { skipHistory: true, isBootstrap: true });
-      if (!this.providerManager.getKey()) {
-        this.ui.addMessage(
-          `Tip: add your ${this.providerManager.getCurrentConfig().displayName} API key above to let the AI drive the narrative.`,
-          "system"
-        );
-      }
-      this.ui.addMessage("When you're ready, tap one of Echo's options to answer Yuta.", "system");
+      this.runStoryTurn("BEGIN");
     }
   }
 
